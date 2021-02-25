@@ -51,6 +51,8 @@ public class TestGeneration {
 
 	private static Logger logger = LoggerFactory.getLogger(TestGeneration.class);
 	
+	private static String methodsToCover = null;
+	
 	public static List<List<TestGenerationResult>> executeTestGeneration(Options options, List<String> javaOpts,
 			CommandLine line) {
 		
@@ -72,6 +74,18 @@ public class TestGeneration {
 			LoggingUtils.getEvoLogger().error("No classpath has been defined for the target project.\nOn the command line you can set it with the -projectCP option\n");
             Help.execute(options);
 			return results;
+		}
+		
+		
+		if(line.hasOption("criterion") 
+				&& line.getOptionValue("criterion").equals("methodcall")) {
+			if (!line.hasOption("cover_methods")) {
+				LoggingUtils.getEvoLogger().error("You need to specify the methods to cover with -cover_methods "
+						+ "to use the methodcall criterion");
+				return results;
+			}
+			else
+				methodsToCover = line.getOptionValue("cover_methods");
 		}
 
 
@@ -342,6 +356,8 @@ public class TestGeneration {
 			throw new RuntimeException("Unsupported strategy: " + strategy);
 		}
 		cmdLine.add("-DTARGET_CLASS=" + target);
+		if(methodsToCover != null)
+			cmdLine.add("-DCOVER_METHODS=" + methodsToCover);
 		if (Properties.PROJECT_PREFIX != null) {
 			cmdLine.add("-DPROJECT_PREFIX=" + Properties.PROJECT_PREFIX);
 		}
@@ -355,8 +371,9 @@ public class TestGeneration {
 		Properties.getInstance();// should force the load, just to be sure
 		Properties.TARGET_CLASS = target;
 		Properties.PROCESS_COMMUNICATION_PORT = port;
+		if(methodsToCover != null)
+			Properties.COVER_METHODS = methodsToCover;
 
-		
 		/*
 		 *  FIXME: refactor, and double-check if indeed correct
 		 * 

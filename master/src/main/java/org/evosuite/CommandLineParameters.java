@@ -123,6 +123,7 @@ public class CommandLineParameters {
 		Option heapDump = new Option("heapdump", "Create heap dump on client VM out of memory error");
 		Option base_dir = new Option("base_dir", true, "Working directory in which tests and reports will be placed");
 
+		Option cover_methods = new Option("cover_methods", true, "Methods to cover");
 
 		@SuppressWarnings("static-access")
 		Option property = OptionBuilder.withArgName("property=value").hasArgs(2).withValueSeparator().withDescription("use value for given property").create("D");
@@ -155,9 +156,11 @@ public class CommandLineParameters {
 		options.addOption(heapDump);
 		options.addOption(startedByCtg);
 
+		options.addOption(cover_methods);
+
 		return options;
 	}
-	
+
 	public static void handleSeed(List<String> javaOpts, CommandLine line) throws NullPointerException{
 		if (line.hasOption("seed")) {
 			/*

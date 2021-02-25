@@ -113,6 +113,9 @@ public class TestSuiteGeneratorHelper {
       case REGRESSION:
         LoggingUtils.getEvoLogger().info("  - Regression");
         break;
+      case METHODCALL:
+    	LoggingUtils.getEvoLogger().info("  - Method Calls Coverage");
+    	break;
       default:
         throw new IllegalArgumentException("Unrecognized criterion: " + criterion);
     }
