@@ -21,14 +21,20 @@ public class MethodCallFactory extends AbstractFitnessFactory<MethodCallTestFitn
 			String[] methods = targetMethodList.split(":");
 			boolean shouldAppearInTest = true;
 			for(String method: methods) {
-				int lastDotIndex = method.lastIndexOf('.');
-				String className = method.substring(0, lastDotIndex);
+				String className = classNameFromMethodFullName(method);
 				goals.add(new MethodCallTestFitness(className, method, shouldAppearInTest));
 				shouldAppearInTest = false;
 			}
 		}
 
 		return goals;
+	}
+	
+	public static String classNameFromMethodFullName(String method) {
+		int lastDotIndex = method.lastIndexOf('.');
+		String className = method.substring(0, lastDotIndex);
+		
+		return className;
 	}
 
 }
