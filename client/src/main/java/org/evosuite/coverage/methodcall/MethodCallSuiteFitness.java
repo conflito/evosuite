@@ -1,4 +1,4 @@
-package org.evosuite.regression.dualregression;
+package org.evosuite.coverage.methodcall;
 
 import java.util.HashSet;
 import java.util.List;

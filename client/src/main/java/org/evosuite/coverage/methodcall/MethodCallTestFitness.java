@@ -1,4 +1,4 @@
-package org.evosuite.regression.dualregression;
+package org.evosuite.coverage.methodcall;
 
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -34,6 +34,8 @@ public class MethodCallTestFitness extends TestFitnessFunction {
 			return fitness;
 		}
 
+		logger.warn("COVERED METHODS:" + result.getTrace().getCoveredMethods());
+		
 		for(String method: result.getTrace().getCoveredMethods()) {
 			if(methodName.equals(method)) {
 				fitness = 0.0;
@@ -52,7 +54,7 @@ public class MethodCallTestFitness extends TestFitnessFunction {
 			if (stmt instanceof MethodStatement) {
 				EntityWithParametersStatement ps = (EntityWithParametersStatement)stmt;
 				String className  = ps.getDeclaringClassName();
-				String methodName = ps.getMethodName() + ps.getDescriptor();
+				String methodName = className + "." + ps.getMethodName() + ps.getDescriptor();
 				if(this.className.equals(className) 
 						&& this.methodName.equals(methodName)) {
 					result = true;
