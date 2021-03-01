@@ -28,36 +28,32 @@ public class MethodCallSuiteFitness extends TestSuiteFitnessFunction{
 		double fitness = 1.0;
 
 		List<ExecutionResult> results = runTestSuite(suite);
-		Set<MethodCallTestFitness> coveredMethodCalls = new HashSet<>();
 
-		for(MethodCallTestFitness goal: allMethodCalls) {
-			for(ExecutionResult result : results) {
+		int maxCovered = Integer.MIN_VALUE;
+		
+		for(ExecutionResult result: results) {
+			int covers = 0;
+			for(MethodCallTestFitness goal: allMethodCalls) {
 				if(goal.isCovered(result)) {
-					coveredMethodCalls.add(goal);
-					break;
+					covers++;
 				}
 			}
+			if(covers > maxCovered)
+				maxCovered = covers;
 		}
-
-		fitness = allMethodCalls.size() - coveredMethodCalls.size();
-
-		for (ExecutionResult result : results) {
-			if (result.hasTimeout() || result.hasTestException()) {
-				fitness = allMethodCalls.size();
-				break;
-			}
-		}
-
+		
+		fitness = allMethodCalls.size() - maxCovered;
+		
+		if(results.size() > 1)
+			fitness = fitness / results.size();
+		
 		updateIndividual(this, suite, fitness);
-
-		suite.setNumOfCoveredGoals(this, coveredMethodCalls.size());
-		if(!allMethodCalls.isEmpty()) {
-			 suite.setCoverage(this, 
-					 (double) coveredMethodCalls.size() / (double) allMethodCalls.size());
-		}
-		else {
+		
+		suite.setNumOfCoveredGoals(this, maxCovered);
+		if(!allMethodCalls.isEmpty())
+			suite.setCoverage(this, (double) maxCovered / allMethodCalls.size());
+		else
 			suite.setCoverage(this, 1.0);
-		}
 
 		return fitness;
 	}
