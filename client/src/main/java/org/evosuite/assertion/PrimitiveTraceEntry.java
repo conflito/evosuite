@@ -91,10 +91,10 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
           PrimitiveAssertion assertion = new PrimitiveAssertion();
           assertion.value = value;
           assertion.source = var;
-          if (Properties.isRegression()) {
+          /*if (Properties.isRegression()) {
             assertion.setComment("// (Primitive) Original Value: " + value
                 + " | Regression Value: " + otherEntry.value);
-          }
+          }*/
           assertions.add(assertion);
           assert (assertion.isValid());
         }

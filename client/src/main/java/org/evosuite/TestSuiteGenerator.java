@@ -420,9 +420,9 @@ public class TestSuiteGenerator {
 				ClientServices.track(RuntimeVariable.Minimized_Size, testSuite.size());
 				ClientServices.track(RuntimeVariable.Result_Length, testSuite.totalLengthOfTestCases());
 				ClientServices.track(RuntimeVariable.Minimized_Length, testSuite.totalLengthOfTestCases());
-			} else if (Properties.isRegression()) {
-				RegressionSuiteMinimizer minimizer = new RegressionSuiteMinimizer();
-				minimizer.minimize(testSuite);
+			//} else if (Properties.isRegression()) {
+			//	RegressionSuiteMinimizer minimizer = new RegressionSuiteMinimizer();
+			//	minimizer.minimize(testSuite);
 			} else {
 
 				double before = testSuite.getFitness();
@@ -510,7 +510,7 @@ public class TestSuiteGenerator {
 			}
 		}
 
-		if (Properties.ASSERTIONS && !Properties.isRegression()) {
+		if (Properties.ASSERTIONS /*&& !Properties.isRegression()*/) {
 			LoggingUtils.getEvoLogger().info("* Generating assertions");
 			// progressMonitor.setCurrentPhase("Generating assertions");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
@@ -537,9 +537,9 @@ public class TestSuiteGenerator {
 			RegressionSuiteSerializer.appendToRegressionTestSuite(testSuite);
 		}
 
-		if(Properties.isRegression() && Properties.KEEP_REGRESSION_ARCHIVE){
-			RegressionSuiteSerializer.storeRegressionArchive();
-		}
+		//if(Properties.isRegression() && Properties.KEEP_REGRESSION_ARCHIVE){
+	//		RegressionSuiteSerializer.storeRegressionArchive();
+	//	}
 	}
 
 	/**

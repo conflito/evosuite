@@ -106,7 +106,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
     if (other instanceof PrimitiveFieldTraceEntry) {
       PrimitiveFieldTraceEntry otherEntry = (PrimitiveFieldTraceEntry) other;
 
-      if (Properties.isRegression()) {
+      /*if (Properties.isRegression()) {
         for (String fieldSignature : signatureFieldMap.keySet()) {
           if (!otherEntry.signatureFieldMap.containsKey(fieldSignature)) {
             continue;
@@ -131,7 +131,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
             assert (assertion.isValid());
           }
         }
-      } else {
+      } else {*/
 
         for (Field field : fieldMap.keySet()) {
           if (!otherEntry.fieldMap.containsKey(field)) {
@@ -148,7 +148,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 
           }
         }
-      }
+      //}
 
     }
     return assertions;
@@ -188,16 +188,16 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
       PrimitiveFieldAssertion ass = (PrimitiveFieldAssertion) assertion;
       //TODO: removed ` && fieldMap.containsKey(ass.field)` for regression testing.
       if (ass.source.equals(var)) {
-        if (Properties.isRegression()) {
+        /*if (Properties.isRegression()) {
           if (ass.field != null && signatureFieldMap.containsKey(ass.field.toString()) &&
               fieldMap.containsKey(signatureFieldMap.get(ass.field.toString()))) {
             return !fieldMap.get(signatureFieldMap.get(ass.field.toString())).equals(ass.value);
           }
-        } else {
+        } else {*/
           if (fieldMap.containsKey(ass.field)) {
             return !fieldMap.get(ass.field).equals(ass.value);
           }
-        }
+        //}
       }
     }
     return false;
