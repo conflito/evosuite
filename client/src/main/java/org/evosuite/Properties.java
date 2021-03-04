@@ -1205,7 +1205,8 @@ public class Properties {
 		RANDOM, ALLMETHODS, TOURNAMENT, JUNIT, ARCHIVE, SERIALIZATION,
 		SEED_BEST_INDIVIDUAL, SEED_RANDOM_INDIVIDUAL,
 		SEED_BEST_AND_RANDOM_INDIVIDUAL, SEED_BEST_INDIVIDUAL_METHOD,
-		SEED_RANDOM_INDIVIDUAL_METHOD, SEED_MUTATED_BEST_INDIVIDUAL
+		SEED_RANDOM_INDIVIDUAL_METHOD, SEED_MUTATED_BEST_INDIVIDUAL, 
+		MULTI_TEST
 	}
 
 	@Parameter(key = "test_archive", description = "Use an archive of covered goals during test generation")
@@ -2491,7 +2492,7 @@ public class Properties {
 	 * whether or not the regression mode is running
 	 */
 	public static boolean isRegression(){
-		boolean isRegression = (STRATEGY == Strategy.REGRESSION);
+		boolean isRegression = (STRATEGY == Strategy.REGRESSION) || !COVER_METHODS.equals("");
 		return isRegression;
 	}
 
