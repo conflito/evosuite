@@ -33,7 +33,7 @@ public class MethodCallTestFitness extends TestFitnessFunction {
 					.mapToDouble(g -> g.distanceToGoal(result))
 					.sum();
 		
-		
+		fitness = TestFitnessFunction.normalize(fitness);
 		
 		updateIndividual(this, individual, fitness);
 		

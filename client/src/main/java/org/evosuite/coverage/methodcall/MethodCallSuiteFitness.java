@@ -31,16 +31,30 @@ public class MethodCallSuiteFitness extends TestSuiteFitnessFunction{
 
 		int maxCovered = Integer.MIN_VALUE;
 		
-		for(ExecutionResult result: results) {
+		for(ExecutableChromosome c: suite.getTestChromosomes()) {
+			MultiTestChromosome mtc = (MultiTestChromosome) c;
+//			mtc.executeForFitnessFunction(this);
+			ExecutionResult result = mtc.getLastExecutionResult();
 			int covers = 0;
 			for(MethodCallTestFitness goal: allMethodCalls) {
-				if(goal.isCovered(result)) {
+				if(goal.isCovered(mtc, result)) {
 					covers++;
 				}
 			}
 			if(covers > maxCovered)
 				maxCovered = covers;
 		}
+		
+//		for(ExecutionResult result: results) {
+//			int covers = 0;
+//			for(MethodCallTestFitness goal: allMethodCalls) {
+//				if(goal.isCovered(result)) {
+//					covers++;
+//				}
+//			}
+//			if(covers > maxCovered)
+//				maxCovered = covers;
+//		}
 		
 		fitness = allMethodCalls.size() - maxCovered;
 		

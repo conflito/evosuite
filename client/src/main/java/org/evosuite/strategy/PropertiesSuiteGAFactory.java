@@ -26,6 +26,7 @@ import org.evosuite.Properties.TheReplacementFunction;
 import org.evosuite.ShutdownTestWriter;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.coverage.methodcall.MultiTestSuiteChromosomeFactory;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
@@ -69,6 +70,7 @@ import org.evosuite.testsuite.factories.SerializationSuiteChromosomeFactory;
 import org.evosuite.testsuite.factories.TestSuiteChromosomeFactory;
 import org.evosuite.testsuite.secondaryobjectives.TestSuiteSecondaryObjective;
 import org.evosuite.utils.ArrayUtil;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ResourceController;
 import sun.misc.Signal;
 
@@ -105,6 +107,9 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
                 logger.info("Using serialization seeding chromosome factory");
                 return new SerializationSuiteChromosomeFactory(
                         new RandomLengthTestFactory());
+            case MULTI_TEST:
+            	LoggingUtils.getEvoLogger().info("* Using multi test chromosome factory");
+            	return new MultiTestSuiteChromosomeFactory();
 			default:
 				throw new RuntimeException("Unsupported test factory: "
 				        + Properties.TEST_FACTORY);
