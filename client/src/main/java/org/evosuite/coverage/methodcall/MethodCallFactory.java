@@ -18,9 +18,13 @@ public class MethodCallFactory extends AbstractFitnessFactory<MethodCallTestFitn
 	@Override
 	public List<MethodCallTestFitness> getCoverageGoals() {
 		List<MethodCallTestFitness> goals = new ArrayList<>();
-
+		
 		String targetMethodList = Properties.COVER_METHODS;
-		if(!targetMethodList.equals("")) {
+		String regressionCP = Properties.REGRESSIONCP;
+		String secondRegressionCP = Properties.SECOND_REGRESSIONCP;
+		
+		if(!targetMethodList.equals("") && !regressionCP.equals("") &&
+				!secondRegressionCP.equals("")) {
 			String[] methods = targetMethodList.split(":");
 			boolean shouldAppearInTest = true;
 			

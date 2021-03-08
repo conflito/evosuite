@@ -33,6 +33,8 @@ public class MultiTestChromosome extends TestChromosome{
 
 	private TestChromosome theSameTestForTheOtherClassLoader;
 	
+	private TestChromosome theSameTestForTheSecondClassLoader;
+	
 	private double objectDistance;
 
 	public MultiTestChromosome() {
@@ -46,6 +48,7 @@ public class MultiTestChromosome extends TestChromosome{
 		observer.enable();
 		observer.resetObjPool();
 		observer.setRegressionFlag(false);
+		observer.setSecondRegressionFlag(false);
 		
 		TestCaseExecutor.getInstance().newObservers();
 		TestCaseExecutor.getInstance().addObserver(observer);
@@ -54,20 +57,28 @@ public class MultiTestChromosome extends TestChromosome{
 		observer.setRegressionFlag(true);
 		ExecutionResult otherResult = 
 				TestCaseExecutor.getInstance().execute(theSameTestForTheOtherClassLoader.getTestCase());
+		observer.setSecondRegressionFlag(true);
+		ExecutionResult secondOtherResult =
+				TestCaseExecutor.getInstance().execute(theSameTestForTheSecondClassLoader.getTestCase());
+		
 		observer.setRegressionFlag(false);
+		observer.setSecondRegressionFlag(false);
 		observer.disable();
 		
 		
 
 		this.setLastExecutionResult(result);
 		theSameTestForTheOtherClassLoader.setLastExecutionResult(otherResult);
+		theSameTestForTheSecondClassLoader.setLastExecutionResult(secondOtherResult);
 
-		double objectDistance = getTestObjectDistance(
+		double firstObjectDistance = getTestObjectDistance(
 				observer.getCurrentObjectMapPool(),
 				observer.getCurrentRegressionObjectMapPool());
 		
-		this.objectDistance = TestSuiteFitnessFunction.normalize(objectDistance);
-		
+		double secondObjectDistance = getTestObjectDistance(
+				observer.getCurrentObjectMapPool(),
+				observer.getCurrentSecondRegressionObjectMapPool());
+						
 		return result;
 	}
 
@@ -78,6 +89,9 @@ public class MultiTestChromosome extends TestChromosome{
 		if(theSameTestForTheOtherClassLoader != null)
 			theSameTestForTheOtherClassLoader
 			.copyCachedResults(mtc.theSameTestForTheOtherClassLoader);
+		if(theSameTestForTheSecondClassLoader != null)
+			theSameTestForTheSecondClassLoader
+			.copyCachedResults(mtc.theSameTestForTheSecondClassLoader);
 	}
 
 	@Override
@@ -103,6 +117,10 @@ public class MultiTestChromosome extends TestChromosome{
 		if(theSameTestForTheOtherClassLoader != null)
 			c.theSameTestForTheOtherClassLoader = 
 			(TestChromosome) theSameTestForTheOtherClassLoader.clone();
+		
+		if(theSameTestForTheSecondClassLoader != null)
+			c.theSameTestForTheSecondClassLoader =
+			(TestChromosome) theSameTestForTheSecondClassLoader.clone();
 		return c;
 	}
 
@@ -111,6 +129,10 @@ public class MultiTestChromosome extends TestChromosome{
 			theSameTestForTheOtherClassLoader = (TestChromosome) super.clone();
 			((DefaultTestCase) theSameTestForTheOtherClassLoader.getTestCase())
 			.changeClassLoader(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
+			
+			theSameTestForTheSecondClassLoader = (TestChromosome) super.clone();
+			((DefaultTestCase) theSameTestForTheSecondClassLoader.getTestCase())
+			.changeClassLoader(TestGenerationContext.getInstance().getSecondRegressionClassLoaderForSUT());
 		}
 	}
 
@@ -123,9 +145,17 @@ public class MultiTestChromosome extends TestChromosome{
 	public TestChromosome getTheSameTestForTheOtherClassLoader() {
 		return theSameTestForTheOtherClassLoader;
 	}
+	
+	public TestChromosome getTheSameTestForTheSecondClassLoader() {
+		return theSameTestForTheSecondClassLoader;
+	}
 
 	public ExecutionResult getLastRegressionExecutionResult() {
 		return theSameTestForTheOtherClassLoader.getLastExecutionResult();
+	}
+	
+	public ExecutionResult getLastSecondRegressionExecutionResult() {
+		return theSameTestForTheSecondClassLoader.getLastExecutionResult();
 	}
 
 	private double getTestObjectDistance(
@@ -135,8 +165,6 @@ public class MultiTestChromosome extends TestChromosome{
 		ObjectDistanceCalculator distanceCalculator = new ObjectDistanceCalculator();
 
 		double distance = 0.0;
-
-		// logger.warn("" + topmap1 + topmap2);
 
 		Map<String, Double> maxClassDistance = new HashMap<String, Double>();
 

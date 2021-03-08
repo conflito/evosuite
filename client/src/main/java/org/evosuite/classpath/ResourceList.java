@@ -498,6 +498,9 @@ public class ResourceList {
 		if(Properties.isRegression() && 
 				classLoader==TestGenerationContext.getInstance().getRegressionClassLoaderForSUT())
 			 cp = org.evosuite.Properties.REGRESSIONCP;
+		else if(Properties.isRegression() && 
+				classLoader==TestGenerationContext.getInstance().getSecondRegressionClassLoaderForSUT())
+			 cp = org.evosuite.Properties.SECOND_REGRESSIONCP;
 
 		for(String entry : cp.split(File.pathSeparator)){
 			addEntry(entry);

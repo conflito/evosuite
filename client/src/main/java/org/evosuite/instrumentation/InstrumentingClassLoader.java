@@ -57,6 +57,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	private final ClassLoader classLoader;
 	private final Map<String, Class<?>> classes = new HashMap<>();
 	private boolean isRegression = false;
+	private boolean isSecondRegression = false;
 	
 	/**
 	 * <p>
@@ -79,6 +80,14 @@ public class InstrumentingClassLoader extends ClassLoader {
 		setClassAssertionStatus(Properties.TARGET_CLASS, true);
 		this.isRegression  = isRegression;
 		logger.debug("REGRESSION classloader running now");
+	}
+	
+	public InstrumentingClassLoader(boolean isRegression, boolean isSecondRegression) {
+		this(new BytecodeInstrumentation());
+		setClassAssertionStatus(Properties.TARGET_CLASS, true);
+		this.isRegression  = isRegression;
+		this.isSecondRegression = isSecondRegression;
+		logger.debug("Second REGRESSION classloader running now");
 	}
 
 	/**
@@ -179,11 +188,26 @@ public class InstrumentingClassLoader extends ClassLoader {
 		String className = fullyQualifiedTargetClass.replace('.', '/');
 		InputStream is = null;
 		try {
-			is = isRegression ?
-					ResourceList.getInstance(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass)
-					:
-					ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
+//			is = isRegression ?
+//					ResourceList.getInstance(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass)
+//					:
+//					ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
 			
+			if(isRegression) {
+				if(isSecondRegression) {
+					is = ResourceList.getInstance(TestGenerationContext.getInstance()
+							.getSecondRegressionClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
+				}
+				else {
+					is = ResourceList.getInstance(TestGenerationContext.getInstance()
+							.getRegressionClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
+				}
+			}
+			else {
+				is = ResourceList.getInstance(TestGenerationContext.getInstance()
+						.getClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
+			}
+					
 			if (is == null) {
 				throw new ClassNotFoundException("Class '" + className + ".class"
 						+ "' should be in target project, but could not be found!");

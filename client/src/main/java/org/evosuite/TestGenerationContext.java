@@ -83,6 +83,11 @@ public class TestGenerationContext {
 	 * The regression class loader
 	 */
 	private InstrumentingClassLoader regressionClassLoader;
+	
+	/**
+	 * The second regression class loader
+	 */
+	private InstrumentingClassLoader secondRegressionClassLoader;
 
 	/**
 	 * The classloader used to load this class
@@ -101,7 +106,7 @@ public class TestGenerationContext {
 		originalClassLoader = this.getClass().getClassLoader();
 		classLoader = new InstrumentingClassLoader();
 		regressionClassLoader = new InstrumentingClassLoader(true);
-
+		secondRegressionClassLoader = new InstrumentingClassLoader(true, true);
 		DBManager.getInstance().setSutClassLoader(classLoader);
 	}
 
@@ -137,6 +142,10 @@ public class TestGenerationContext {
 
 	public InstrumentingClassLoader getRegressionClassLoaderForSUT() {
 		return regressionClassLoader;
+	}
+	
+	public InstrumentingClassLoader getSecondRegressionClassLoaderForSUT() {
+		return secondRegressionClassLoader;
 	}
 
 	public TestClusterGenerator getTestClusterGenerator() {

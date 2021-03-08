@@ -19,7 +19,10 @@ public class MultiTestObserver extends ExecutionObserver implements Serializable
 
 	private List<Map<Integer, Map<String, Map<String, Object>>>> currentObjectMapPool = new ArrayList<>();
 	private List<Map<Integer, Map<String, Map<String, Object>>>> currentRegressionObjectMapPool = new ArrayList<>();
+	private List<Map<Integer, Map<String, Map<String, Object>>>> currentSecondRegressionObjectMapPool = new ArrayList<>();
+	
 	private boolean isRegression;
+	private boolean isSecondRegression;
 	private boolean isDisabled;
 	
 	private static final Logger logger = LoggerFactory.getLogger(MultiTestObserver.class);
@@ -38,6 +41,10 @@ public class MultiTestObserver extends ExecutionObserver implements Serializable
 		return currentRegressionObjectMapPool;
 	}
 
+	public List<Map<Integer, Map<String, Map<String, Object>>>> getCurrentSecondRegressionObjectMapPool() {
+		return currentSecondRegressionObjectMapPool;
+	}
+
 	public void enable() {
 		isDisabled = false;
 	}
@@ -49,10 +56,15 @@ public class MultiTestObserver extends ExecutionObserver implements Serializable
 	public void setRegressionFlag(boolean isRegression) {
 		this.isRegression = isRegression;
 	}
+	
+	public void setSecondRegressionFlag(boolean isSecondRegression) {
+		this.isSecondRegression = isSecondRegression;
+	}
 
 	public void resetObjPool() {
 		currentObjectMapPool = new ArrayList<>();
 		currentRegressionObjectMapPool = new ArrayList<>();
+		currentSecondRegressionObjectMapPool = new ArrayList<>();
 	}
 
 	@Override
@@ -78,7 +90,10 @@ public class MultiTestObserver extends ExecutionObserver implements Serializable
 		}
 		ObjectFields scopeObjectFields = new ObjectFields(s);
 		if (isRegression) {
-			currentRegressionObjectMapPool.add(scopeObjectFields.getObjectVariables());
+			if(isSecondRegression)
+				currentSecondRegressionObjectMapPool.add(scopeObjectFields.getObjectVariables());
+			else
+				currentRegressionObjectMapPool.add(scopeObjectFields.getObjectVariables());
 		} 
 		else {
 			currentObjectMapPool.add(scopeObjectFields.getObjectVariables());
