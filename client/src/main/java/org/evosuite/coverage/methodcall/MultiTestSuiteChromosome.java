@@ -5,13 +5,17 @@ import java.util.Collection;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MultiTestSuiteChromosome extends TestSuiteChromosome {
 
 	private static final long serialVersionUID = -48615528088549654L;
+	
+	private static final Logger logger = LoggerFactory.getLogger(MultiTestSuiteChromosome.class);
 
 	public MultiTestSuiteChromosome() {
-		super();
+		this(new MultiTestChromosomeFactory());
 	}
 
 	public MultiTestSuiteChromosome(ChromosomeFactory<TestChromosome> testChromosomeFactory) {

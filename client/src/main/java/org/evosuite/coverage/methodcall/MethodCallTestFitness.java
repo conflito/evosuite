@@ -2,6 +2,8 @@ package org.evosuite.coverage.methodcall;
 
 import java.util.List;
 
+import org.evosuite.Properties;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -20,21 +22,32 @@ public class MethodCallTestFitness extends TestFitnessFunction {
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		double fitness = 1.0;
-		
+
+		if(!(individual instanceof MultiTestChromosome)) {
+			return individual.getFitness();
+		}
+
 		for(MethodCallGoal goal: goals) {
 			if(!goal.shouldAppearInTestStatements() && 
 					goal.appearsInTestStatements(result)) {
-				updateIndividual(this, individual, Double.MAX_VALUE);
-				return Double.MAX_VALUE;
+				updateIndividual(this, individual, 1);
+				return 1;
 			}
 		}
-		
-		fitness = goals.stream()
-					.mapToDouble(g -> g.distanceToGoal(result))
-					.sum();
-		
-		fitness = TestFitnessFunction.normalize(fitness);
-		
+
+		MultiTestChromosome mtc = (MultiTestChromosome) individual;
+
+		double distanceToMethods = goals.stream()
+				.mapToDouble(g -> g.distanceToGoal(result))
+				.sum();
+
+		double objectDistance = (1 / (1 + mtc.getObjectDistance()));
+		if(objectDistance <= Properties.DISTANCE_THRESHOLD) {
+			objectDistance = 0.0;
+		}
+
+		fitness = normalize(distanceToMethods + objectDistance);
+
 		updateIndividual(this, individual, fitness);
 		
 		return fitness;

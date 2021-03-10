@@ -13,13 +13,14 @@ public class MultiTestSuiteChromosomeFactory extends TestSuiteChromosomeFactory{
 	@Override
 	public TestSuiteChromosome getChromosome() {
 		MultiTestSuiteChromosome suite = new MultiTestSuiteChromosome();
-		
+		MultiTestChromosomeFactory mtcf = new MultiTestChromosomeFactory();
+
 		suite.clearTests();
 		
 		int numTests = Randomness.nextInt(Properties.MIN_INITIAL_TESTS,
 		        Properties.MAX_INITIAL_TESTS + 1);
 		for (int i = 0; i < numTests; i++) {
-			TestChromosome test = testChromosomeFactory.getChromosome();
+			TestChromosome test = mtcf.getChromosome();
 			suite.addTest(test);
 		}
 		

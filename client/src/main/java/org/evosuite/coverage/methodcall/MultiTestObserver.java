@@ -80,7 +80,19 @@ public class MultiTestObserver extends ExecutionObserver implements Serializable
 
 	@Override
 	public void afterStatement(Statement statement, Scope scope, Throwable exception) {
-		
+		if (isDisabled) {
+			return;
+		}
+		ObjectFields scopeObjectFields = new ObjectFields(scope);
+		if (isRegression) {
+			if(isSecondRegression)
+				currentSecondRegressionObjectMapPool.add(scopeObjectFields.getObjectVariables());
+			else
+				currentRegressionObjectMapPool.add(scopeObjectFields.getObjectVariables());
+		} 
+		else {
+			currentObjectMapPool.add(scopeObjectFields.getObjectVariables());
+		}
 	}
 
 	@Override

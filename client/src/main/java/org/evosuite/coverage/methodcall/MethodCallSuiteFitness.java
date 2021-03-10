@@ -18,7 +18,6 @@ public class MethodCallSuiteFitness extends TestSuiteFitnessFunction{
 
 	public MethodCallSuiteFitness() {
 		allMethodCalls.addAll(new MethodCallFactory().getCoverageGoals());
-
 		ExecutionTracer.enableTraceCalls();
 	}
 
@@ -26,14 +25,13 @@ public class MethodCallSuiteFitness extends TestSuiteFitnessFunction{
 	public double getFitness(
 			AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		double fitness = 1.0;
-
+			
 		List<ExecutionResult> results = runTestSuite(suite);
 
 		int maxCovered = Integer.MIN_VALUE;
 		
 		for(ExecutableChromosome c: suite.getTestChromosomes()) {
 			MultiTestChromosome mtc = (MultiTestChromosome) c;
-//			mtc.executeForFitnessFunction(this);
 			ExecutionResult result = mtc.getLastExecutionResult();
 			int covers = 0;
 			for(MethodCallTestFitness goal: allMethodCalls) {
@@ -44,23 +42,8 @@ public class MethodCallSuiteFitness extends TestSuiteFitnessFunction{
 			if(covers > maxCovered)
 				maxCovered = covers;
 		}
-		
-//		for(ExecutionResult result: results) {
-//			int covers = 0;
-//			for(MethodCallTestFitness goal: allMethodCalls) {
-//				if(goal.isCovered(result)) {
-//					covers++;
-//				}
-//			}
-//			if(covers > maxCovered)
-//				maxCovered = covers;
-//		}
-		
 		fitness = allMethodCalls.size() - maxCovered;
-		
-		if(results.size() > 1)
-			fitness = fitness / results.size();
-		
+				
 		updateIndividual(this, suite, fitness);
 		
 		suite.setNumOfCoveredGoals(this, maxCovered);
