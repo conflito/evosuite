@@ -1483,8 +1483,8 @@ public class Properties {
 	@Parameter(key = "second_regressioncp", group = "Runtime", description = "Second regression testing classpath")
 	public static String SECOND_REGRESSIONCP = ".";
 	
-	@Parameter(key = "run_other_tests_before_threshold", group = "Runtime", description = "If we want to run the tests on the regressions before reaching the methods")
-	public static boolean RUN_OTHER_TESTS_BEFORE_THRESHOLD = false;
+	@Parameter(key = "run_other_tests_before_reaching", group = "Runtime", description = "If we want to run the tests on the regressions before reaching the methods")
+	public static boolean RUN_OTHER_TESTS_BEFORE_REACHING = true;
 
 	@Parameter(key = "regression_analysis_combinations", group = "Runtime", description = "What regression fitness combination stragetegy is used")
 	public static int REGRESSION_ANALYSIS_COMBINATIONS = 0;

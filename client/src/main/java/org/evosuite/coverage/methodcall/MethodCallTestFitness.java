@@ -36,17 +36,26 @@ public class MethodCallTestFitness extends TestFitnessFunction {
 		}
 
 		MultiTestChromosome mtc = (MultiTestChromosome) individual;
-
+		
 		double distanceToMethods = goals.stream()
 				.mapToDouble(g -> g.distanceToGoal(result))
 				.sum();
 
-		double objectDistance = (1 / (1 + mtc.getObjectDistance()));
-		if(objectDistance <= Properties.DISTANCE_THRESHOLD) {
-			objectDistance = 0.0;
+		if(distanceToMethods == 0.0)
+			mtc.setReachedMethods(true);
+		
+		if(!Properties.RUN_OTHER_TESTS_BEFORE_REACHING && !mtc.reachedMethods()) {
+			fitness = normalize(distanceToMethods);
 		}
-
-		fitness = normalize(distanceToMethods + objectDistance);
+		else {
+			double objectDistance = (1 / (1 + mtc.getObjectDistance()));
+			if(objectDistance <= Properties.DISTANCE_THRESHOLD) {
+				objectDistance = 0.0;
+			}
+			fitness = normalize(distanceToMethods + objectDistance);
+		}
+		
+		
 
 		updateIndividual(this, individual, fitness);
 		
