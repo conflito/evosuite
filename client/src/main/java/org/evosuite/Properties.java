@@ -2504,6 +2504,34 @@ public class Properties {
 		boolean isRegression = (STRATEGY == Strategy.REGRESSION) || !COVER_METHODS.equals("");
 		return isRegression;
 	}
+	
+	public static boolean NOT_FOUND_FIRST_REGRESSION;
+	public static boolean NOT_FOUND_SECOND_REGRESSION;
+	
+	public static boolean FIRST_REGRESSION;
+	public static boolean SECOND_REGRESSION;
+	
+	public static void setNotFound() {
+		if(FIRST_REGRESSION)
+			NOT_FOUND_FIRST_REGRESSION = true;
+		if(SECOND_REGRESSION)
+			NOT_FOUND_SECOND_REGRESSION = true;
+	}
+	
+	public static void setFirstRegression(boolean b) {
+		FIRST_REGRESSION = b;
+	}
+	
+	public static void setSecondRegression(boolean b) {
+		SECOND_REGRESSION = b;
+	}
+	
+	public static void resetRegressionBooleans() {
+		FIRST_REGRESSION = false;
+		SECOND_REGRESSION = false;
+		NOT_FOUND_FIRST_REGRESSION = false;
+		NOT_FOUND_SECOND_REGRESSION = false;
+	}
 
 
 }

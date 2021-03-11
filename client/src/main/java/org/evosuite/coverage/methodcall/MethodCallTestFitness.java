@@ -41,8 +41,10 @@ public class MethodCallTestFitness extends TestFitnessFunction {
 				.mapToDouble(g -> g.distanceToGoal(result))
 				.sum();
 
-		if(distanceToMethods == 0.0)
+		if(!Properties.RUN_OTHER_TESTS_BEFORE_REACHING && distanceToMethods == 0.0) {
 			mtc.setReachedMethods(true);
+			
+		}
 		
 		if(!Properties.RUN_OTHER_TESTS_BEFORE_REACHING && !mtc.reachedMethods()) {
 			fitness = normalize(distanceToMethods);

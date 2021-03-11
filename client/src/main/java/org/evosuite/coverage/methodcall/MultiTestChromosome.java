@@ -37,6 +37,10 @@ public class MultiTestChromosome extends TestChromosome{
 	private double objectDistance;
 
 	private boolean reachedMethods;
+	
+	private boolean updatedLoadersOnce;
+	private boolean notInFirstRegression;
+	private boolean notInSecondRegression;
 
 	public MultiTestChromosome() {
 		super();
@@ -49,11 +53,11 @@ public class MultiTestChromosome extends TestChromosome{
 
 		ExecutionResult result;
 
-		if(!Properties.RUN_OTHER_TESTS_BEFORE_REACHING && !reachedMethods) {
-			result = TestCaseExecutor.getInstance().execute(this.test);
-			this.setLastExecutionResult(result);
-			return result;
-		}
+//		if(!Properties.RUN_OTHER_TESTS_BEFORE_REACHING && !reachedMethods) {
+//			result = TestCaseExecutor.getInstance().execute(this.test);
+//			this.setLastExecutionResult(result);
+//			return result;
+//		}
 		
 		observer.enable();
 		observer.resetObjPool();
@@ -81,11 +85,21 @@ public class MultiTestChromosome extends TestChromosome{
 		theSameTestForTheOtherClassLoader.setLastExecutionResult(otherResult);
 		theSameTestForTheSecondClassLoader.setLastExecutionResult(secondOtherResult);
 
-		double firstObjectDistance = getTestObjectDistance(
+		double firstObjectDistance;
+		
+		if(this.notInFirstRegression)
+			firstObjectDistance = Double.MAX_VALUE;
+		else
+			firstObjectDistance= getTestObjectDistance(
 				observer.getCurrentObjectMapPool(),
 				observer.getCurrentRegressionObjectMapPool());
 
-		double secondObjectDistance = getTestObjectDistance(
+		double secondObjectDistance;
+		
+		if(this.notInSecondRegression)
+			secondObjectDistance = Double.MAX_VALUE;
+		else
+			secondObjectDistance = getTestObjectDistance(
 				observer.getCurrentObjectMapPool(),
 				observer.getCurrentSecondRegressionObjectMapPool());
 
@@ -128,6 +142,9 @@ public class MultiTestChromosome extends TestChromosome{
 
 		c.objectDistance = this.objectDistance;
 		c.reachedMethods = this.reachedMethods;
+		c.updatedLoadersOnce = this.updatedLoadersOnce;
+		c.notInFirstRegression = this.notInFirstRegression;
+		c.notInSecondRegression = this.notInSecondRegression;
 		
 		if(theSameTestForTheOtherClassLoader != null)
 			c.theSameTestForTheOtherClassLoader = 
@@ -143,13 +160,30 @@ public class MultiTestChromosome extends TestChromosome{
 
 	protected void updateClassloader() {
 		if(super.isChanged()) {
+			Properties.resetRegressionBooleans();
+			Properties.setFirstRegression(true);
+			
 			theSameTestForTheOtherClassLoader = (TestChromosome) super.clone();
 			((DefaultTestCase) theSameTestForTheOtherClassLoader.getTestCase())
 			.changeClassLoader(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
 
+			Properties.setFirstRegression(false);
+			Properties.setSecondRegression(true);
+			
 			theSameTestForTheSecondClassLoader = (TestChromosome) super.clone();
 			((DefaultTestCase) theSameTestForTheSecondClassLoader.getTestCase())
 			.changeClassLoader(TestGenerationContext.getInstance().getSecondRegressionClassLoaderForSUT());
+			
+			Properties.setSecondRegression(false);
+			
+			if(!updatedLoadersOnce) {
+				if(Properties.NOT_FOUND_FIRST_REGRESSION)
+					this.notInFirstRegression = true;
+				else if(Properties.NOT_FOUND_SECOND_REGRESSION)
+					this.notInSecondRegression = true;
+			}
+			
+			updatedLoadersOnce = true;
 		}
 	}
 

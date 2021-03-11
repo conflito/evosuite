@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.util.Inputs;
@@ -403,11 +404,11 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 					}
 				}
 			}
-			LoggingUtils.getEvoLogger().info("Method not found - keeping old class loader ");
+			Properties.setNotFound();
 		} catch (ClassNotFoundException e) {
-			LoggingUtils.getEvoLogger().info("Class not found - keeping old class loader ", e);
+			Properties.setNotFound();
 		} catch (SecurityException e) {
-			LoggingUtils.getEvoLogger().info("Class not found - keeping old class loader ",e);
+			Properties.setNotFound();
 		}
 	}
 
