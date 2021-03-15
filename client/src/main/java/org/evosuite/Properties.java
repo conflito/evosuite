@@ -2525,13 +2525,5 @@ public class Properties {
 	public static void setSecondRegression(boolean b) {
 		SECOND_REGRESSION = b;
 	}
-	
-	public static void resetRegressionBooleans() {
-		FIRST_REGRESSION = false;
-		SECOND_REGRESSION = false;
-		NOT_FOUND_FIRST_REGRESSION = false;
-		NOT_FOUND_SECOND_REGRESSION = false;
-	}
-
 
 }

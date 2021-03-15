@@ -195,12 +195,25 @@ public class InstrumentingClassLoader extends ClassLoader {
 			
 			if(isRegression) {
 				if(isSecondRegression) {
+					Properties.setSecondRegression(true);
 					is = ResourceList.getInstance(TestGenerationContext.getInstance()
 							.getSecondRegressionClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
+					
+					boolean hasClass = ResourceList.getInstance(TestGenerationContext.getInstance()
+							.getSecondRegressionClassLoaderForSUT()).hasClass(fullyQualifiedTargetClass);
+					if(!hasClass && Properties.TARGET_CLASS.equals(fullyQualifiedTargetClass))
+						Properties.setNotFound();
+					Properties.setSecondRegression(false);
 				}
 				else {
+					Properties.setFirstRegression(true);
 					is = ResourceList.getInstance(TestGenerationContext.getInstance()
 							.getRegressionClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
+					boolean hasClass = ResourceList.getInstance(TestGenerationContext.getInstance()
+							.getRegressionClassLoaderForSUT()).hasClass(fullyQualifiedTargetClass);
+					if(!hasClass && Properties.TARGET_CLASS.equals(fullyQualifiedTargetClass))
+						Properties.setNotFound();
+					Properties.setFirstRegression(false);
 				}
 			}
 			else {

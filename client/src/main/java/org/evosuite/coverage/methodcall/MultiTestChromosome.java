@@ -160,7 +160,6 @@ public class MultiTestChromosome extends TestChromosome{
 
 	protected void updateClassloader() {
 		if(super.isChanged()) {
-			Properties.resetRegressionBooleans();
 			Properties.setFirstRegression(true);
 			
 			theSameTestForTheOtherClassLoader = (TestChromosome) super.clone();
