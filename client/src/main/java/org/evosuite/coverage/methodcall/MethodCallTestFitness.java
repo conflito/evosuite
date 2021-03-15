@@ -43,11 +43,10 @@ public class MethodCallTestFitness extends TestFitnessFunction {
 
 		if(!Properties.RUN_OTHER_TESTS_BEFORE_REACHING && distanceToMethods == 0.0) {
 			mtc.setReachedMethods(true);
-			
 		}
 		
 		if(!Properties.RUN_OTHER_TESTS_BEFORE_REACHING && !mtc.reachedMethods()) {
-			fitness = normalize(distanceToMethods);
+			fitness = normalize(distanceToMethods + 1);
 		}
 		else {
 			double objectDistance = (1 / (1 + mtc.getObjectDistance()));
@@ -56,8 +55,6 @@ public class MethodCallTestFitness extends TestFitnessFunction {
 			}
 			fitness = normalize(distanceToMethods + objectDistance);
 		}
-		
-		
 
 		updateIndividual(this, individual, fitness);
 		
@@ -96,12 +93,12 @@ public class MethodCallTestFitness extends TestFitnessFunction {
 
 	@Override
 	public String getTargetClass() {
-		return goals.get(0).getClassName();
+		return goals.isEmpty()?null:goals.get(0).getClassName();
 	}
 
 	@Override
 	public String getTargetMethod() {
-		return goals.get(0).getMethodName();
+		return goals.isEmpty()?null:goals.get(0).getMethodName();
 	}
 
 }

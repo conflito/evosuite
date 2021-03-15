@@ -53,11 +53,11 @@ public class MultiTestChromosome extends TestChromosome{
 
 		ExecutionResult result;
 
-//		if(!Properties.RUN_OTHER_TESTS_BEFORE_REACHING && !reachedMethods) {
-//			result = TestCaseExecutor.getInstance().execute(this.test);
-//			this.setLastExecutionResult(result);
-//			return result;
-//		}
+		if(!Properties.RUN_OTHER_TESTS_BEFORE_REACHING && !reachedMethods) {
+			result = TestCaseExecutor.getInstance().execute(this.test);
+			this.setLastExecutionResult(result);
+			return result;
+		}
 		
 		observer.enable();
 		observer.resetObjPool();
