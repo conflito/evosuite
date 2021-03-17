@@ -55,6 +55,8 @@ public class MethodCallTestFitness extends TestFitnessFunction {
 			}
 			fitness = normalize(distanceToMethods + objectDistance);
 		}
+		
+//		logger.warn("COV: " + result.getTrace().getCoveredMethods().toString());
 
 		updateIndividual(this, individual, fitness);
 		
