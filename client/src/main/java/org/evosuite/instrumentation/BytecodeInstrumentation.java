@@ -19,11 +19,15 @@
  */
 package org.evosuite.instrumentation;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
+import org.evosuite.Properties.Criterion;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
@@ -34,16 +38,21 @@ import org.evosuite.instrumentation.testability.ContainerTransformation;
 import org.evosuite.instrumentation.testability.StringTransformation;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.instrumentation.*;
 import org.evosuite.seeding.PrimitiveClassAdapter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcarver.instrument.Instrumenter;
 import org.evosuite.testcarver.instrument.TransformerUtil;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.runtime.util.ComputeClassWriter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.SerialVersionUIDAdder;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.util.TraceClassVisitor;
@@ -148,7 +157,8 @@ public class BytecodeInstrumentation {
 	 *            a {@link org.objectweb.asm.ClassReader} object.
 	 * @return an array of byte.
 	 */
-	public byte[] transformBytes(ClassLoader classLoader, String className, ClassReader reader) {
+	public byte[] transformBytes(ClassLoader classLoader, String className, ClassReader reader,
+			boolean isRegression, boolean isSecondRegression) {
 
 		int readFlags = ClassReader.SKIP_FRAMES;
 
@@ -228,7 +238,7 @@ public class BytecodeInstrumentation {
 
 		// Collect constant values for the value pool
 		cv = new PrimitiveClassAdapter(cv, className);
-
+		
 		if (Properties.RESET_STATIC_FIELDS) {
 			cv = handleStaticReset(className, cv);
 		}
@@ -248,12 +258,21 @@ public class BytecodeInstrumentation {
 				cv = new SerialVersionUIDAdder(cv);
 		}
 
+		// Insert method that travels all fields
+		if(Properties.CRITERION[0] == Criterion.METHODCALL) {
+			cv = new CreateAllFieldsMethod(cv, className);
+			File f = new File(Properties.CP + File.separator + "matcherGenerated");
+			if(!f.exists())
+				try {
+					f.mkdir();
+				} catch (Exception e) {}			
+		}
+		
 		// Testability Transformations
 		if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
 				|| (!Properties.TARGET_CLASS_PREFIX.isEmpty()
 						&& classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))
 				|| shouldTransform(classNameWithDots)) {
-
 			ClassNode cn = new AnnotatedClassNode();
 			reader.accept(cn, readFlags);
 			logger.info("Starting transformation of " + className);
@@ -293,7 +312,18 @@ public class BytecodeInstrumentation {
 		} else {
 			reader.accept(cv, readFlags);
 		}
-
+		
+		if(!isRegression) {
+			byte[] bytes = writer.toByteArray();
+			try (FileOutputStream stream = new FileOutputStream(
+					Properties.CP + File.separator + "matcherGenerated" + 
+					File.separator + className + ".class")) {
+	            stream.write(bytes);
+	        } catch (Exception e) {
+	            
+	        }
+		}
+		
 		return writer.toByteArray();
 	}
 

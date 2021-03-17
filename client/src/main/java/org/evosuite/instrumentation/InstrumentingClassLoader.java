@@ -22,6 +22,7 @@ package org.evosuite.instrumentation;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
 import org.evosuite.runtime.javaee.db.DBManager;
+import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -181,18 +183,14 @@ public class InstrumentingClassLoader extends ClassLoader {
 
 	//This is needed, as it is overridden in subclasses
 	protected byte[] getTransformedBytes(String className, InputStream is) throws IOException {
-		return instrumentation.transformBytes(this, className, new ClassReader(is));
+		return instrumentation.transformBytes(this, className, new ClassReader(is), 
+				isRegression, isSecondRegression);
 	}
 
 	private Class<?> instrumentClass(String fullyQualifiedTargetClass)throws ClassNotFoundException  {
 		String className = fullyQualifiedTargetClass.replace('.', '/');
 		InputStream is = null;
-		try {
-//			is = isRegression ?
-//					ResourceList.getInstance(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass)
-//					:
-//					ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
-			
+		try {	
 			if(isRegression) {
 				if(isSecondRegression) {
 					Properties.setSecondRegression(true);
@@ -228,9 +226,10 @@ public class InstrumentingClassLoader extends ClassLoader {
 			
 			byte[] byteBuffer = getTransformedBytes(className,is);
 			createPackageDefinition(fullyQualifiedTargetClass);
-			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,byteBuffer.length);
+			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,byteBuffer.length);			
+			
 			classes.put(fullyQualifiedTargetClass, result);
-
+			
 			logger.info("Loaded class: " + fullyQualifiedTargetClass);
 			return result;
 		} catch (Throwable t) {
