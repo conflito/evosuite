@@ -29,6 +29,7 @@ import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.assertion.CheapPurityAnalyzer;
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
 import org.evosuite.instrumentation.error.ErrorConditionClassAdapter;
@@ -261,10 +262,14 @@ public class BytecodeInstrumentation {
 		// Insert method that travels all fields
 		if(Properties.CRITERION[0] == Criterion.METHODCALL) {
 			cv = new CreateAllFieldsMethod(cv, className);
-			File f = new File(Properties.CP + File.separator + "matcherGenerated");
-			if(!f.exists())
+			File mergeDir = new File(Properties.CP + File.separator + "matcherGenerated");
+			File branchADir = new File(Properties.REGRESSIONCP + File.separator + "matcherGenerated");
+			File branchBDir = new File(Properties.SECOND_REGRESSIONCP + File.separator + "matcherGenerated");
+			if(!mergeDir.exists())
 				try {
-					f.mkdir();
+					mergeDir.mkdir();
+					branchADir.mkdir();
+					branchBDir.mkdir();
 				} catch (Exception e) {}			
 		}
 		
@@ -313,15 +318,36 @@ public class BytecodeInstrumentation {
 			reader.accept(cv, readFlags);
 		}
 		
+		byte[] bytes = writer.toByteArray();
+		
 		if(!isRegression) {
-			byte[] bytes = writer.toByteArray();
 			try (FileOutputStream stream = new FileOutputStream(
 					Properties.CP + File.separator + "matcherGenerated" + 
 					File.separator + className + ".class")) {
 	            stream.write(bytes);
-	        } catch (Exception e) {
-	            
-	        }
+	        } catch (Exception e) {}
+		}
+		else {
+			if(isSecondRegression) {
+				if(!Properties.TARGET_CLASS.equals(className) ||
+						!Properties.NOT_FOUND_SECOND_REGRESSION) {
+					try (FileOutputStream stream = new FileOutputStream(
+							Properties.SECOND_REGRESSIONCP + File.separator + "matcherGenerated" + 
+							File.separator + className + ".class")) {
+			            stream.write(bytes);
+			        } catch (Exception e) {}
+				}
+			}
+			else {
+				if(!Properties.TARGET_CLASS.equals(className) ||
+						!Properties.NOT_FOUND_FIRST_REGRESSION) {
+					try (FileOutputStream stream = new FileOutputStream(
+							Properties.REGRESSIONCP + File.separator + "matcherGenerated" + 
+							File.separator + className + ".class")) {
+			            stream.write(bytes);
+			        } catch (Exception e) {}
+				}
+			}
 		}
 		
 		return writer.toByteArray();
