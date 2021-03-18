@@ -26,14 +26,6 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 			this.type = type;
 		}
 		
-		private boolean isPrimitive() {
-			String desc = type.getDescriptor();
-			
-			return desc.equals("I") || desc.equals("Z") || desc.equals("B")
-					|| desc.equals("S") || desc.equals("C") || desc.equals("J")
-					|| desc.equals("F") || desc.equals("D");
-		}
-		
 	}
 	
 	protected static final Logger logger = LoggerFactory.getLogger(CreateAllFieldsMethod.class);
@@ -160,6 +152,12 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 					mv.visitVarInsn(Opcodes.ALOAD, thisId);
 					mv.visitFieldInsn(Opcodes.GETFIELD, className, f.name, f.type.getDescriptor());
 					mv.visitInsn(Opcodes.D2I);
+					break;
+				default:
+					mv.visitVarInsn(Opcodes.ALOAD, thisId);
+					mv.visitFieldInsn(Opcodes.GETFIELD, className, f.name, f.type.getDescriptor());
+					mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, f.type.getClassName(), 
+							ALL_FIELDS_METHOD_NAME, "()I", false);
 					break;
 			}
 			
