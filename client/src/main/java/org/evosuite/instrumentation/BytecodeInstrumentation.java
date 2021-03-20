@@ -260,18 +260,18 @@ public class BytecodeInstrumentation {
 		}
 
 		// Insert method that travels all fields
-		if(Properties.CRITERION[0] == Criterion.METHODCALL) {
-			cv = new CreateAllFieldsMethod(cv, className);
-			File mergeDir = new File(Properties.CP + File.separator + "matcherGenerated");
-			File branchADir = new File(Properties.REGRESSIONCP + File.separator + "matcherGenerated");
-			File branchBDir = new File(Properties.SECOND_REGRESSIONCP + File.separator + "matcherGenerated");
-			if(!mergeDir.exists())
-				try {
-					mergeDir.mkdir();
-					branchADir.mkdir();
-					branchBDir.mkdir();
-				} catch (Exception e) {}			
-		}
+//		if(Properties.CRITERION[0] == Criterion.METHODCALL) {
+//			cv = new CreateAllFieldsMethod(cv, className);
+//			File mergeDir = new File(Properties.CP + File.separator + "matcherGenerated");
+//			File branchADir = new File(Properties.REGRESSIONCP + File.separator + "matcherGenerated");
+//			File branchBDir = new File(Properties.SECOND_REGRESSIONCP + File.separator + "matcherGenerated");
+//			if(!mergeDir.exists())
+//				try {
+//					mergeDir.mkdir();
+//					branchADir.mkdir();
+//					branchBDir.mkdir();
+//				} catch (Exception e) {}			
+//		}
 		
 		// Testability Transformations
 		if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
@@ -318,37 +318,37 @@ public class BytecodeInstrumentation {
 			reader.accept(cv, readFlags);
 		}
 		
-		byte[] bytes = writer.toByteArray();
-		
-		if(!isRegression) {
-			try (FileOutputStream stream = new FileOutputStream(
-					Properties.CP + File.separator + "matcherGenerated" + 
-					File.separator + className + ".class")) {
-	            stream.write(bytes);
-	        } catch (Exception e) {}
-		}
-		else {
-			if(isSecondRegression) {
-				if(!Properties.TARGET_CLASS.equals(className) ||
-						!Properties.NOT_FOUND_SECOND_REGRESSION) {
-					try (FileOutputStream stream = new FileOutputStream(
-							Properties.SECOND_REGRESSIONCP + File.separator + "matcherGenerated" + 
-							File.separator + className + ".class")) {
-			            stream.write(bytes);
-			        } catch (Exception e) {}
-				}
-			}
-			else {
-				if(!Properties.TARGET_CLASS.equals(className) ||
-						!Properties.NOT_FOUND_FIRST_REGRESSION) {
-					try (FileOutputStream stream = new FileOutputStream(
-							Properties.REGRESSIONCP + File.separator + "matcherGenerated" + 
-							File.separator + className + ".class")) {
-			            stream.write(bytes);
-			        } catch (Exception e) {}
-				}
-			}
-		}
+//		byte[] bytes = writer.toByteArray();
+//		
+//		if(!isRegression) {
+//			try (FileOutputStream stream = new FileOutputStream(
+//					Properties.CP + File.separator + "matcherGenerated" + 
+//					File.separator + className + ".class")) {
+//	            stream.write(bytes);
+//	        } catch (Exception e) {}
+//		}
+//		else {
+//			if(isSecondRegression) {
+//				if(!Properties.TARGET_CLASS.equals(className) ||
+//						!Properties.NOT_FOUND_SECOND_REGRESSION) {
+//					try (FileOutputStream stream = new FileOutputStream(
+//							Properties.SECOND_REGRESSIONCP + File.separator + "matcherGenerated" + 
+//							File.separator + className + ".class")) {
+//			            stream.write(bytes);
+//			        } catch (Exception e) {}
+//				}
+//			}
+//			else {
+//				if(!Properties.TARGET_CLASS.equals(className) ||
+//						!Properties.NOT_FOUND_FIRST_REGRESSION) {
+//					try (FileOutputStream stream = new FileOutputStream(
+//							Properties.REGRESSIONCP + File.separator + "matcherGenerated" + 
+//							File.separator + className + ".class")) {
+//			            stream.write(bytes);
+//			        } catch (Exception e) {}
+//				}
+//			}
+//		}
 		
 		return writer.toByteArray();
 	}

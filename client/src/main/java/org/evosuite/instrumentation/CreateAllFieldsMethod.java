@@ -1,4 +1,4 @@
-package org.evosuite.runtime.instrumentation;
+package org.evosuite.instrumentation;
 
 import java.util.ArrayList;
 import java.util.List;
