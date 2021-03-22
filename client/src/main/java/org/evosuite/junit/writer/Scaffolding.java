@@ -85,6 +85,9 @@ public class Scaffolding {
 
 		builder.append(getHeader(name, results, wasSecurityException));
 		builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
+		
+		builder.append(AllFieldsMethod.getSpecificMethod());
+		
 		builder.append(getFooter());
 
 		return builder.toString();
@@ -114,6 +117,9 @@ public class Scaffolding {
 			builder.append(imp);
 			builder.append(";\n");
 		}
+		////////////////////////////////
+		builder.append("import java.lang.reflect.*;\n");
+		///////////////////////////////
 		builder.append("\n");
 
 		if(TestSuiteWriterUtils.doesUseMocks(results)){
