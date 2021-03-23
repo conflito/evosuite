@@ -208,6 +208,11 @@ public class BytecodeInstrumentation {
 				cv = new AccessibleClassAdapter(cv, className);
 			}
 
+			// Insert method that travels all fields
+			if(Properties.CRITERION[0] == Criterion.METHODCALL) {
+				cv = new CreateAllFieldsMethod(cv, className);			
+			}
+			
 			cv = new RemoveFinalClassAdapter(cv);
 
 			cv = new ExecutionPathClassAdapter(cv, className);
@@ -258,20 +263,6 @@ public class BytecodeInstrumentation {
 			if(RuntimeSettings.applyUIDTransformation)
 				cv = new SerialVersionUIDAdder(cv);
 		}
-
-		// Insert method that travels all fields
-//		if(Properties.CRITERION[0] == Criterion.METHODCALL) {
-//			cv = new CreateAllFieldsMethod(cv, className);
-//			File mergeDir = new File(Properties.CP + File.separator + "matcherGenerated");
-//			File branchADir = new File(Properties.REGRESSIONCP + File.separator + "matcherGenerated");
-//			File branchBDir = new File(Properties.SECOND_REGRESSIONCP + File.separator + "matcherGenerated");
-//			if(!mergeDir.exists())
-//				try {
-//					mergeDir.mkdir();
-//					branchADir.mkdir();
-//					branchBDir.mkdir();
-//				} catch (Exception e) {}			
-//		}
 		
 		// Testability Transformations
 		if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)

@@ -47,13 +47,13 @@ public class AllFieldsMethod {
 		sb.append(INNER_INNER_INNER_INNER_INNER_BLOCK_SPACE + "result = "
 				+ "handleArrayField(array, prime, result);\n");
 		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "}\n");
-		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "else if(isIterable(fieldType)) {\n");
-		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "final Iterable<Object> "
-				+ "objects = (Iterable<Object>) field.get(o);\n");
-		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "if(objects != null) \n");
-		sb.append(INNER_INNER_INNER_INNER_INNER_BLOCK_SPACE + "result = "
-				+ "handleIterableField(objects, prime, result);\n");
-		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "}\n");
+//		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "else if(isIterable(fieldType)) {\n");
+//		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "final Iterable<Object> "
+//				+ "objects = (Iterable<Object>) field.get(o);\n");
+//		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "if(objects != null) \n");
+//		sb.append(INNER_INNER_INNER_INNER_INNER_BLOCK_SPACE + "result = "
+//				+ "handleIterableField(objects, prime, result);\n");
+//		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "}\n");
 		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "else\n");
 		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "result = "
 				+ "prime * result + allFieldsMethod(field.get(o));\n");

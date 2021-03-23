@@ -244,6 +244,9 @@ public class TestSuiteWriter implements Opcodes {
             File file = new File(dir + "/" + name + ".java");
             //executor.newObservers();
             content = getUnitTestsAllInSameFile(name, results);
+            ////////////////
+            content = content.replaceAll("\\S*\\.allFieldsMethod", "allFieldsMethod");
+            ///////////////////
             FileIOUtils.writeFile(content, file);
             generated.add(file);
         } else {
