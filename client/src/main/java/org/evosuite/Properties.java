@@ -38,6 +38,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2525,5 +2526,9 @@ public class Properties {
 	public static void setSecondRegression(boolean b) {
 		SECOND_REGRESSION = b;
 	}
+	
+	public static Class<?> INSTRUMENTED_CLASS = null;
+	public static Method INSTRUMENTED_METHOD = null;
+	
 
 }
