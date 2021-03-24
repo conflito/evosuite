@@ -234,7 +234,25 @@ public class TestSuiteGenerator {
 		}
 
 		TestSuiteChromosome testCases = generateTests();
+		/////////////////////
+		
+		GenericMethod m = new GenericMethod(Properties.INSTRUMENTED_METHOD, Properties.INSTRUMENTED_CLASS);
 
+		for(TestCase tc: testCases.getTests()) {
+			int upperBound = tc.size();
+			
+			List<VariableReference> objects = 
+					tc.getObjects(Properties.INSTRUMENTED_CLASS, upperBound);
+			for(VariableReference o: objects) {
+				List<VariableReference> parameters = new ArrayList<>();
+				parameters.add(o);
+				MethodStatement ms = new MethodStatement(tc, m, null, parameters);
+				
+				tc.addStatement(ms);
+			}
+		}
+		
+		//////////////////////
 		postProcessTests(testCases);
 		ClientServices.getInstance().getClientNode().publishPermissionStatistics();
 		PermissionStatistics.getInstance().printStatistics(LoggingUtils.getEvoLogger());
