@@ -85,7 +85,7 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 	private void createHandlePrimitiveFieldMethod() {
 		String[] exceptions = {"java/lang/Exception"};
 		
-		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC,
+		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC,
 				"handlePrimitiveField", "(Ljava/lang/Object;Ljava/lang/reflect/Field;"
 						+ "Ljava/lang/Class;)I", null, exceptions);
 		
@@ -234,7 +234,7 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 	private void createHandleArrayFieldMethod() {
 		String[] exceptions = {"java/lang/Exception"};
 		
-		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC,
+		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC,
 				"handleArrayField", "(Ljava/lang/Object;II)I", null, exceptions);
 		
 		Label _14 = new Label();
@@ -285,7 +285,7 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 		
 		for(String type: primitives) {
 			String lower = type.toLowerCase();
-			MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC,
+			MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC,
 					"is" + type, "(Ljava/lang/Class;)Z", null, null);
 			
 			mv.visitCode();
@@ -318,7 +318,7 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 	private void createStaticAllFieldsMethod() {
 		String[] exceptions = {"java/lang/Exception"};
 		
-		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
+		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC,
 				ALL_FIELDS_METHOD_NAME, "(Ljava/lang/Object;)I", null, exceptions);
 		
 		Label _30 = new Label();
