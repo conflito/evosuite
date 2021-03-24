@@ -1,21 +1,10 @@
 package org.evosuite.coverage.methodcall;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
-
 import org.evosuite.Properties;
-import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.statements.EntityWithParametersStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testcase.variable.VariableReferenceImpl;
-import org.evosuite.utils.generic.GenericMethod;
 
 public class MethodCallTestFitness extends TestFitnessFunction {
 
@@ -43,23 +32,6 @@ public class MethodCallTestFitness extends TestFitnessFunction {
 				return 1;
 			}
 		}
-		/////////////////////////////
-		MethodStatement last = null;
-		int count = 0;
-		for(Statement stmt: individual.getTestCase()) {
-			if(stmt instanceof MethodStatement) {
-				MethodStatement ms = (MethodStatement) stmt;
-				if(ms.getMethodName().equals("allFieldsMethod")) {
-					count++;
-				}
-				last = ms;
-			}
-		}
-		if(last == null || count != 1 || !last.getMethodName().equals("allFieldsMethod")) {
-			updateIndividual(this, individual, 1);
-			return 1;
-		}
-		///////////////////////////
 		MultiTestChromosome mtc = (MultiTestChromosome) individual;
 		
 		double distanceToMethods = goals.stream()
