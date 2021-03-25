@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.evosuite.Properties;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
@@ -32,8 +33,6 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 	protected static final Logger logger = LoggerFactory.getLogger(CreateAllFieldsMethod.class);
 
 	private static final Pattern ANONYMOUS_MATCHER1 = Pattern.compile(".*\\$\\d+.*$");
-	
-	private static final String ALL_FIELDS_METHOD_NAME = "allFieldsMethod";
 	
 	private final String className;
 	
@@ -263,7 +262,7 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 		mv.visitInsn(Opcodes.IMUL);
 		mv.visitVarInsn(Opcodes.ALOAD, 6);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-				className, ALL_FIELDS_METHOD_NAME, "(Ljava/lang/Object;)I", false);
+				className, Properties.ALL_FIELDS_METHOD_NAME, Properties.ALL_FIELDS_METHOD_DESC, false);
 		mv.visitInsn(Opcodes.IADD);
 		mv.visitVarInsn(Opcodes.ISTORE, 3);
 		mv.visitIincInsn(5, 1);
@@ -318,8 +317,10 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 	private void createStaticAllFieldsMethod() {
 		String[] exceptions = {"java/lang/Exception"};
 		
-		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC,
-				ALL_FIELDS_METHOD_NAME, "(Ljava/lang/Object;)I", null, exceptions);
+		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC 
+					| Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC,
+				Properties.ALL_FIELDS_METHOD_NAME, Properties.ALL_FIELDS_METHOD_DESC,
+				null, exceptions);
 		
 		Label _30 = new Label();
 		Label _86 = new Label();
@@ -414,7 +415,7 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
 				"java/lang/reflect/Field", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", false);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-				className, "allFieldsMethod:", "(Ljava/lang/Object;)I", false);
+				className, Properties.ALL_FIELDS_METHOD_NAME, Properties.ALL_FIELDS_METHOD_DESC, false);
 		mv.visitInsn(Opcodes.IADD);
 		mv.visitVarInsn(Opcodes.ISTORE, 1);
 		mv.visitLabel(_134);

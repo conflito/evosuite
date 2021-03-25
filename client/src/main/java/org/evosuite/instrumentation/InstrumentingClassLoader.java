@@ -233,7 +233,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 					&& Properties.INSTRUMENTED_CLASS == null) {
 				Properties.INSTRUMENTED_CLASS = result;
 				for(Method m: result.getDeclaredMethods()) {
-					if(m.getName().equals("allFieldsMethod")) {
+					if(m.getName().equals(Properties.ALL_FIELDS_METHOD_NAME)) {
 						Properties.INSTRUMENTED_METHOD = m;
 						break;
 					}
