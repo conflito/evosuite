@@ -1,5 +1,7 @@
 package org.evosuite.instrumentation;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
@@ -17,14 +19,29 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 	private static final Pattern ANONYMOUS_MATCHER1 = Pattern.compile(".*\\$\\d+.*$");
 	
 	private final String className;
+	private final String classNameWithDots;
 	
 	private boolean isInterface = false;
 	private boolean isAnonymous = false;
 	private boolean isEnum = false;
 	
-	public CreateAllFieldsMethod(ClassVisitor visitor, String className) {
+	private Set<String> secondaryMethodsToCover;
+	
+	public CreateAllFieldsMethod(ClassVisitor visitor, String className, 
+			String classNameWithDots) {
 		super(Opcodes.ASM5, visitor);
-		this.className = className.replace(".", "/");
+
+		this.className = className;
+		this.classNameWithDots = classNameWithDots;
+		
+		this.secondaryMethodsToCover = new HashSet<>();
+		
+		String[] targetMethods = Properties.COVER_METHODS.split(":");
+		for(int i = 1; i < targetMethods.length; i++) {
+			String method = targetMethods[i];
+			secondaryMethodsToCover.add(method);
+		}
+		
 	}
 	
 	@Override
@@ -38,6 +55,19 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 		if (superName.equals(java.lang.Enum.class.getName().replace(".", "/"))) {
 			isEnum = true;
 		}
+	}
+	
+	@Override
+	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+
+		String methodFullName = classNameWithDots + "." +  name + desc;
+		
+		if(secondaryMethodsToCover.contains(methodFullName)) {
+			return super.visitMethod(access | Opcodes.ACC_SYNTHETIC, 
+					name, desc, signature, exceptions);
+		}
+		
+		return super.visitMethod(access, name, desc, signature, exceptions);
 	}
 	
 	@Override

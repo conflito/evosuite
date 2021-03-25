@@ -210,7 +210,7 @@ public class BytecodeInstrumentation {
 
 			// Insert method that travels all fields
 			if(Properties.CRITERION[0] == Criterion.METHODCALL) {
-				cv = new CreateAllFieldsMethod(cv, className);			
+				cv = new CreateAllFieldsMethod(cv, className, classNameWithDots);
 			}
 			
 			cv = new RemoveFinalClassAdapter(cv);

@@ -25,13 +25,13 @@ public class MethodCallTestFitness extends TestFitnessFunction {
 			return individual.getFitness();
 		}
 
-		for(MethodCallGoal goal: goals) {
-			if(!goal.shouldAppearInTestStatements() && 
-					goal.appearsInTestStatements(result)) {
-				updateIndividual(this, individual, 1);
-				return 1;
-			}
-		}
+//		for(MethodCallGoal goal: goals) {
+//			if(!goal.shouldAppearInTestStatements() && 
+//					goal.appearsInTestStatements(result)) {
+//				updateIndividual(this, individual, 1);
+//				return 1;
+//			}
+//		}
 		MultiTestChromosome mtc = (MultiTestChromosome) individual;
 		
 		double distanceToMethods = goals.stream()
