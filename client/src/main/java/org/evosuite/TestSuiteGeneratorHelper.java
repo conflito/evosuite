@@ -26,6 +26,7 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.assertion.AssertionGenerator;
 import org.evosuite.assertion.CompleteAssertionGenerator;
 import org.evosuite.assertion.SimpleMutationAssertionGenerator;
+import org.evosuite.assertion.SpecificAssertionGenerator;
 import org.evosuite.assertion.UnitAssertionGenerator;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.coverage.branch.Branch;
@@ -282,6 +283,8 @@ public class TestSuiteGeneratorHelper {
       asserter = new SimpleMutationAssertionGenerator();
     } else if (Properties.ASSERTION_STRATEGY == AssertionStrategy.ALL) {
       asserter = new CompleteAssertionGenerator();
+    } else if (Properties.ASSERTION_STRATEGY == AssertionStrategy.SPECIFIC) {
+      asserter = new SpecificAssertionGenerator();
     } else
       asserter = new UnitAssertionGenerator();
 

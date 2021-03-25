@@ -1024,7 +1024,7 @@ public class Properties {
 	public static boolean ASSERTIONS = true;
 
 	public enum AssertionStrategy {
-		ALL, MUTATION, UNIT
+		ALL, MUTATION, UNIT, SPECIFIC
 	}
 
 	@Parameter(key = "assertion_strategy", group = "Output", description = "Which assertions to generate")
