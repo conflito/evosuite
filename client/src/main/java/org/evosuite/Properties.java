@@ -2533,5 +2533,18 @@ public class Properties {
 	public static Class<?> INSTRUMENTED_CLASS = null;
 	public static Method INSTRUMENTED_METHOD = null;
 	
+	public static String getClassNameFromMethodFullName(String method) {
+		int lastDotIndex = method.lastIndexOf('.');
+		String className = method.substring(0, lastDotIndex);
+		
+		return className;
+	}
+	
+	public static String getMethodNameFromMethodFullName(String method) {
+		int lastDotIndex = method.lastIndexOf('.');
+		String methodName = method.substring(lastDotIndex + 1);
+		
+		return methodName;
+	}
 
 }

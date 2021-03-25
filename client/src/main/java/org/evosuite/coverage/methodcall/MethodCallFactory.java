@@ -31,8 +31,8 @@ public class MethodCallFactory extends AbstractFitnessFactory<MethodCallTestFitn
 			List<MethodCallGoal> callGoals = new ArrayList<>();
 			
 			for(String method: methods) {
-				String className = classNameFromMethodFullName(method);
-				String methodName = methodNameFromMethodFullName(method);
+				String className = Properties.getClassNameFromMethodFullName(method);
+				String methodName = Properties.getMethodNameFromMethodFullName(method);
 				
 				Set<Integer> lines = LinePool.getLines(className, methodName);
 				Optional<Integer> randomLine = lines.stream().findAny();
@@ -56,20 +56,6 @@ public class MethodCallFactory extends AbstractFitnessFactory<MethodCallTestFitn
 		}
 
 		return goals;
-	}
-	
-	public static String classNameFromMethodFullName(String method) {
-		int lastDotIndex = method.lastIndexOf('.');
-		String className = method.substring(0, lastDotIndex);
-		
-		return className;
-	}
-	
-	public static String methodNameFromMethodFullName(String method) {
-		int lastDotIndex = method.lastIndexOf('.');
-		String methodName = method.substring(lastDotIndex + 1);
-		
-		return methodName;
 	}
 
 }
