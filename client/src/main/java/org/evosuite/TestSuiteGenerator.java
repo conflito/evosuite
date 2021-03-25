@@ -233,26 +233,8 @@ public class TestSuiteGenerator {
 			}
 		}
 
-		TestSuiteChromosome testCases = generateTests();
-		/////////////////////
-		
-		GenericMethod m = new GenericMethod(Properties.INSTRUMENTED_METHOD, Properties.INSTRUMENTED_CLASS);
+		TestSuiteChromosome testCases = generateTests();	
 
-		for(TestCase tc: testCases.getTests()) {
-			int upperBound = tc.size();
-			
-			List<VariableReference> objects = 
-					tc.getObjects(Properties.INSTRUMENTED_CLASS, upperBound);
-			for(VariableReference o: objects) {
-				List<VariableReference> parameters = new ArrayList<>();
-				parameters.add(o);
-				MethodStatement ms = new MethodStatement(tc, m, null, parameters);
-				
-				tc.addStatement(ms);
-			}
-		}
-		
-		//////////////////////
 		postProcessTests(testCases);
 		ClientServices.getInstance().getClientNode().publishPermissionStatistics();
 		PermissionStatistics.getInstance().printStatistics(LoggingUtils.getEvoLogger());
@@ -271,6 +253,24 @@ public class TestSuiteGenerator {
 		LoggingUtils.getEvoLogger().info("");
 
 		return result;
+	}
+	
+	private void injectAllFieldsMethod(TestSuiteChromosome testSuite) {
+		GenericMethod m = new GenericMethod(Properties.INSTRUMENTED_METHOD, Properties.INSTRUMENTED_CLASS);
+
+		for(TestCase tc: testSuite.getTests()) {
+			int upperBound = tc.size();
+			
+			List<VariableReference> objects = 
+					tc.getObjects(Properties.INSTRUMENTED_CLASS, upperBound);
+			for(VariableReference o: objects) {
+				List<VariableReference> parameters = new ArrayList<>();
+				parameters.add(o);
+				MethodStatement ms = new MethodStatement(tc, m, null, parameters);
+				
+				tc.addStatement(ms);
+			}
+		}
 	}
 
 	/**
@@ -465,7 +465,9 @@ public class TestSuiteGenerator {
 			ClientServices.track(RuntimeVariable.Result_Length, testSuite.totalLengthOfTestCases());
 			ClientServices.track(RuntimeVariable.Minimized_Length, testSuite.totalLengthOfTestCases());
 		}
-
+		
+		injectAllFieldsMethod(testSuite);
+		
 		if (Properties.COVERAGE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.COVERAGE_ANALYSIS);
 			CoverageCriteriaAnalyzer.analyzeCoverage(testSuite);
@@ -527,7 +529,7 @@ public class TestSuiteGenerator {
 				}
 			}
 		}
-
+		
 		if (Properties.ASSERTIONS /*&& !Properties.isRegression()*/) {
 			LoggingUtils.getEvoLogger().info("* Generating assertions");
 			// progressMonitor.setCurrentPhase("Generating assertions");
