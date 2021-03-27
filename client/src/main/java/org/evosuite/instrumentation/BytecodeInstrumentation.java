@@ -307,40 +307,7 @@ public class BytecodeInstrumentation {
 
 		} else {
 			reader.accept(cv, readFlags);
-		}
-		
-//		byte[] bytes = writer.toByteArray();
-//		
-//		if(!isRegression) {
-//			try (FileOutputStream stream = new FileOutputStream(
-//					Properties.CP + File.separator + "matcherGenerated" + 
-//					File.separator + className + ".class")) {
-//	            stream.write(bytes);
-//	        } catch (Exception e) {}
-//		}
-//		else {
-//			if(isSecondRegression) {
-//				if(!Properties.TARGET_CLASS.equals(className) ||
-//						!Properties.NOT_FOUND_SECOND_REGRESSION) {
-//					try (FileOutputStream stream = new FileOutputStream(
-//							Properties.SECOND_REGRESSIONCP + File.separator + "matcherGenerated" + 
-//							File.separator + className + ".class")) {
-//			            stream.write(bytes);
-//			        } catch (Exception e) {}
-//				}
-//			}
-//			else {
-//				if(!Properties.TARGET_CLASS.equals(className) ||
-//						!Properties.NOT_FOUND_FIRST_REGRESSION) {
-//					try (FileOutputStream stream = new FileOutputStream(
-//							Properties.REGRESSIONCP + File.separator + "matcherGenerated" + 
-//							File.separator + className + ".class")) {
-//			            stream.write(bytes);
-//			        } catch (Exception e) {}
-//				}
-//			}
-//		}
-		
+		}		
 		return writer.toByteArray();
 	}
 
