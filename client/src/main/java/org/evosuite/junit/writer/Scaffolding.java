@@ -119,6 +119,8 @@ public class Scaffolding {
 		}
 		////////////////////////////////
 		builder.append("import java.lang.reflect.*;\n");
+		builder.append("import java.util.Set;\n");
+		builder.append("import java.util.HashSet;\n");
 		///////////////////////////////
 		builder.append("\n");
 

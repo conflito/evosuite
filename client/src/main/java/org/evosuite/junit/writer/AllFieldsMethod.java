@@ -11,7 +11,7 @@ public class AllFieldsMethod {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append(getAllFieldsMethod());
-		sb.append(getHandleIterableFieldMethod());
+		sb.append(getAuxAllFieldsMethod());
 		sb.append(getHandleArrayFieldMethod());
 		sb.append(getHandlePrimitiveFieldMethod());
 		sb.append(getAuxMethods());
@@ -19,18 +19,29 @@ public class AllFieldsMethod {
 		return sb.toString();
 	}
 	
-	private static String getAllFieldsMethod() {
+	private static Object getAllFieldsMethod() {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("\n");
-		sb.append(METHOD_SPACE + "@SuppressWarnings(\"unchecked\")\n");
 		sb.append(METHOD_SPACE);
 		sb.append("public static int allFieldsMethod(Object o) throws Exception { \n");
+		sb.append(BLOCK_SPACE + "return allFieldsMethodAux(o, new HashSet<>());\n");
+		sb.append(METHOD_SPACE + "}\n");
+		
+		return sb.toString();
+	}
+
+	private static String getAuxAllFieldsMethod() {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("\n");
+		sb.append(METHOD_SPACE);
+		sb.append("private static int allFieldsMethodAux(Object o, Set<Object> visited) throws Exception { \n");
 		sb.append(BLOCK_SPACE + "int result = 1;\n");
 		sb.append(BLOCK_SPACE + "final int prime = 17;\n");
 		
-		sb.append(BLOCK_SPACE + "if(o != null) { \n");
-		
+		sb.append(BLOCK_SPACE + "if(o != null && !visited.contains(o)) {\n");
+		sb.append(INNER_BLOCK_SPACE + "visited.add(o);\n");
 		sb.append(INNER_BLOCK_SPACE + "Field[] fields = o.getClass().getDeclaredFields();\n");
 		sb.append(INNER_BLOCK_SPACE + "for(Field field: fields) { \n");
 		sb.append(INNER_INNER_BLOCK_SPACE + "if(!Modifier.isStatic(field.getModifiers())) {\n");
@@ -45,20 +56,16 @@ public class AllFieldsMethod {
 		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "final Object array = field.get(o);\n");
 		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "if(array != null) \n");
 		sb.append(INNER_INNER_INNER_INNER_INNER_BLOCK_SPACE + "result = "
-				+ "handleArrayField(array, prime, result);\n");
+				+ "handleArrayField(array, prime, result, visited);\n");
 		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "}\n");
-//		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "else if(isIterable(fieldType)) {\n");
-//		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "final Iterable<Object> "
-//				+ "objects = (Iterable<Object>) field.get(o);\n");
-//		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "if(objects != null) \n");
-//		sb.append(INNER_INNER_INNER_INNER_INNER_BLOCK_SPACE + "result = "
-//				+ "handleIterableField(objects, prime, result);\n");
-//		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "}\n");
 		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "else\n");
-		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "result = "
-				+ "prime * result + allFieldsMethod(field.get(o));\n");
+		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "result += "
+				+ "allFieldsMethodAux(field.get(o), visited);\n");
 		sb.append(INNER_INNER_BLOCK_SPACE + "}\n");
 		sb.append(INNER_BLOCK_SPACE + "}\n");
+		sb.append(BLOCK_SPACE + "}\n");
+		sb.append(BLOCK_SPACE + "else {\n");
+		sb.append(INNER_BLOCK_SPACE + "result = 0;\n");
 		sb.append(BLOCK_SPACE + "}\n");
 		
 		sb.append(BLOCK_SPACE + "return result;\n");
@@ -68,39 +75,20 @@ public class AllFieldsMethod {
 		return sb.toString();
 	}
 	
-	private static String getHandleIterableFieldMethod() {
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("\n");
-		sb.append(METHOD_SPACE);
-		sb.append("private static int handleIterableField(Iterable<Object> objects, "
-				+ "int prime, \n");
-		sb.append(INNER_BLOCK_SPACE + "int currResult) throws Exception {\n");
-		
-		sb.append(BLOCK_SPACE + "int result = currResult;\n");
-		sb.append(BLOCK_SPACE + "for(Object o1: objects) \n");
-		sb.append(INNER_BLOCK_SPACE + "result = prime * result + allFieldsMethod(o1);\n");
-		sb.append(BLOCK_SPACE + "return result;\n");
-		
-		sb.append(METHOD_SPACE + "}\n");
-		return sb.toString();
-	}
-	
 	private static String getHandleArrayFieldMethod() {
 		StringBuilder sb = new StringBuilder();
 	
 		sb.append("\n");
 		sb.append(METHOD_SPACE);
-		sb.append("private static int handleArrayField(Object array, int prime, "
-				+ "int currResult) \n");
-		sb.append(INNER_BLOCK_SPACE + "throws Exception {\n");
+		sb.append("public static int handleArrayField(Object array, int prime, \n"); 
+		sb.append(INNER_BLOCK_SPACE + "int currResult, Set<Object> visited) throws Exception {\n");
 		
 		sb.append(BLOCK_SPACE + "int result = currResult;\n");
 		sb.append(BLOCK_SPACE + "final int length = Array.getLength(array);\n");
 		sb.append(BLOCK_SPACE + "for (int i = 0; i < length; i ++) {\n");
 		sb.append(INNER_BLOCK_SPACE + "Object arrayElement = Array.get(array, i);\n");
 		sb.append(INNER_BLOCK_SPACE + "result = prime * result + "
-				+ "allFieldsMethod(arrayElement);\n");
+				+ "allFieldsMethodAux(arrayElement, visited);\n");
 		sb.append(BLOCK_SPACE + "}\n");
 		sb.append(BLOCK_SPACE + "return result;\n");
 		sb.append(METHOD_SPACE + "}\n");
@@ -159,14 +147,7 @@ public class AllFieldsMethod {
 			sb.append(BLOCK_SPACE + "return clazz.getTypeName()"
 					+ ".equals(\"" + lower +"\");\n");
 			sb.append(METHOD_SPACE + "}\n");
-		}
-		
-		sb.append("\n");
-		sb.append(METHOD_SPACE);
-		sb.append("private static boolean isIterable(Class<?> clazz) {\n");
-		sb.append(BLOCK_SPACE + "return Iterable.class.isAssignableFrom(clazz);\n");
-		sb.append(METHOD_SPACE + "}\n");
-		
+		}		
 		return sb.toString();
 	}
 }
