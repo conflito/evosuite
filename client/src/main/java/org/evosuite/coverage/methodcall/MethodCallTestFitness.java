@@ -51,6 +51,10 @@ public class MethodCallTestFitness extends TestFitnessFunction {
 				objectDistance = 0.0;
 			}
 			fitness = normalize(distanceToMethods + objectDistance);
+			
+			if(Properties.SHOW_FF)
+				logger.warn("Method distance: " + distanceToMethods + 
+						" | Object distance: " + objectDistance);
 		}
 		
 		updateIndividual(this, individual, fitness);

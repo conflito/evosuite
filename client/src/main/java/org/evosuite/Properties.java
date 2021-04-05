@@ -1462,6 +1462,9 @@ public class Properties {
 	@Parameter(key = "distance_threshold", group = "Runtime", description = "Threshold to consider object distance")
 	public static double DISTANCE_THRESHOLD = 0.05;
 	
+	@Parameter(key = "show_ff", group = "Runtime", description = "Should show fitness function values")
+	public static boolean SHOW_FF = false;
+	
 	/** Method under test */
 	@Parameter(key = "target_method_list", group = "Runtime", description = "A colon(:) separated list of methods for which to generate tests")
 	public static String TARGET_METHOD_LIST = "";
