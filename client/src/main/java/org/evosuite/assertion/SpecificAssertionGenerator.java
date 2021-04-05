@@ -31,7 +31,7 @@ public class SpecificAssertionGenerator extends AssertionGenerator {
 	
 	private void handleOthers(Statement s, TestCase test) {
 		if(isRelevant(s, test)) {
-			filterAssertions(s, false);
+			filterAssertions(s, true);
 		}
 		else {
 			s.removeAssertions();
