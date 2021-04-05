@@ -51,7 +51,11 @@ public class MultiTestChromosome extends TestChromosome{
 	public ExecutionResult executeForFitnessFunction(
 			TestSuiteFitnessFunction testSuiteFitnessFunction) {
 
-		ExecutionResult result;
+		ExecutionResult result = null;
+		ExecutionResult otherResult = null;
+		ExecutionResult secondOtherResult = null;
+		boolean compilesInRegression = true;
+		boolean compilesInSecondRegression = true;
 
 		if(!Properties.RUN_OTHER_TESTS_BEFORE_REACHING && !reachedMethods) {
 			result = TestCaseExecutor.getInstance().execute(this.test);
@@ -69,12 +73,23 @@ public class MultiTestChromosome extends TestChromosome{
 
 		result = TestCaseExecutor.getInstance().execute(this.test);
 		observer.setRegressionFlag(true);
-		ExecutionResult otherResult = 
+		try {
+			otherResult = 
 				TestCaseExecutor.getInstance().execute(theSameTestForTheOtherClassLoader.getTestCase());
+		}
+		catch(Exception e) {
+			logger.warn("No compile in regression");
+			compilesInRegression = false;
+		}
 		observer.setSecondRegressionFlag(true);
-		ExecutionResult secondOtherResult =
+		try {
+			secondOtherResult =
 				TestCaseExecutor.getInstance().execute(theSameTestForTheSecondClassLoader.getTestCase());
-
+		}
+		catch(Exception e) {
+			logger.warn("No compile in second regression");
+			compilesInSecondRegression = false;
+		}
 		observer.setRegressionFlag(false);
 		observer.setSecondRegressionFlag(false);
 		observer.disable();
@@ -82,12 +97,14 @@ public class MultiTestChromosome extends TestChromosome{
 
 
 		this.setLastExecutionResult(result);
-		theSameTestForTheOtherClassLoader.setLastExecutionResult(otherResult);
-		theSameTestForTheSecondClassLoader.setLastExecutionResult(secondOtherResult);
+		if(compilesInRegression)
+			theSameTestForTheOtherClassLoader.setLastExecutionResult(otherResult);
+		if(compilesInSecondRegression)
+			theSameTestForTheSecondClassLoader.setLastExecutionResult(secondOtherResult);
 
 		double firstObjectDistance;
 		
-		if(this.notInFirstRegression)
+		if(this.notInFirstRegression || !compilesInRegression)
 			firstObjectDistance = Double.MAX_VALUE;
 		else
 			firstObjectDistance= getTestObjectDistance(
@@ -96,7 +113,7 @@ public class MultiTestChromosome extends TestChromosome{
 
 		double secondObjectDistance;
 		
-		if(this.notInSecondRegression)
+		if(this.notInSecondRegression || !compilesInSecondRegression)
 			secondObjectDistance = Double.MAX_VALUE;
 		else
 			secondObjectDistance = getTestObjectDistance(
