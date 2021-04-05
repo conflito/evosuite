@@ -262,13 +262,15 @@ public class TestSuiteGenerator {
 			int upperBound = tc.size();
 			
 			List<VariableReference> objects = 
-					tc.getObjects(Properties.INSTRUMENTED_CLASS, upperBound);
+					tc.getObjects(upperBound);
 			for(VariableReference o: objects) {
-				List<VariableReference> parameters = new ArrayList<>();
-				parameters.add(o);
-				MethodStatement ms = new MethodStatement(tc, m, null, parameters);
-				
-				tc.addStatement(ms);
+				if(!o.isPrimitive()) {
+					List<VariableReference> parameters = new ArrayList<>();
+					parameters.add(o);
+					MethodStatement ms = new MethodStatement(tc, m, null, parameters);
+					
+					tc.addStatement(ms);
+				}
 			}
 		}
 	}
@@ -428,6 +430,9 @@ public class TestSuiteGenerator {
 
 			inliner.inline(testSuite);
 		}
+		
+		if(Properties.CRITERION[0] == Criterion.METHODCALL)
+			Properties.MINIMIZE = false;
 
 		if (Properties.MINIMIZE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
@@ -466,7 +471,8 @@ public class TestSuiteGenerator {
 			ClientServices.track(RuntimeVariable.Minimized_Length, testSuite.totalLengthOfTestCases());
 		}
 		
-		injectAllFieldsMethod(testSuite);
+		if(Properties.CRITERION[0] == Criterion.METHODCALL)
+			injectAllFieldsMethod(testSuite);
 		
 		if (Properties.COVERAGE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.COVERAGE_ANALYSIS);
