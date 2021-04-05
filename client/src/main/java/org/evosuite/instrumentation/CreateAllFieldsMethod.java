@@ -257,45 +257,43 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 		String[] exceptions = {"java/lang/Exception"};
 		
 		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC,
-				"handleArrayField", "(Ljava/lang/Object;IILjava/util/Set;)I", null, exceptions);
+				"handleArrayField", "(Ljava/lang/Object;Ljava/util/Set;)I", null, exceptions);
 		
-		Label _15 = new Label();
-		Label _39 = new Label();
+		Label _13 = new Label();
+		Label _33 = new Label();
 		
 		mv.visitCode();
 		
-		mv.visitVarInsn(Opcodes.ILOAD, 2);
-		mv.visitVarInsn(Opcodes.ISTORE, 4);
+		mv.visitInsn(Opcodes.ICONST_0);
+		mv.visitVarInsn(Opcodes.ISTORE, 2);
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
 				"java/lang/reflect/Array", "getLength", "(Ljava/lang/Object;)I", false);
-		mv.visitVarInsn(Opcodes.ISTORE, 5);
+		mv.visitVarInsn(Opcodes.ISTORE, 3);
 		
 		mv.visitInsn(Opcodes.ICONST_0);
-		mv.visitVarInsn(Opcodes.ISTORE, 6);
-		mv.visitJumpInsn(Opcodes.GOTO, _39);
-		mv.visitLabel(_15);
+		mv.visitVarInsn(Opcodes.ISTORE, 4);
+		mv.visitJumpInsn(Opcodes.GOTO, _33);
+		mv.visitLabel(_13);
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
-		mv.visitVarInsn(Opcodes.ILOAD, 6);
+		mv.visitVarInsn(Opcodes.ILOAD, 4);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
 				"java/lang/reflect/Array", "get", "(Ljava/lang/Object;I)Ljava/lang/Object;", false);
-		mv.visitVarInsn(Opcodes.ASTORE, 7);
-		mv.visitVarInsn(Opcodes.ILOAD, 1);
-		mv.visitVarInsn(Opcodes.ILOAD, 4);
-		mv.visitInsn(Opcodes.IMUL);
-		mv.visitVarInsn(Opcodes.ALOAD, 7);
-		mv.visitVarInsn(Opcodes.ALOAD, 3);
+		mv.visitVarInsn(Opcodes.ASTORE, 5);
+		mv.visitVarInsn(Opcodes.ILOAD, 2);
+		mv.visitVarInsn(Opcodes.ALOAD, 5);
+		mv.visitVarInsn(Opcodes.ALOAD, 1);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
 				className, Properties.ALL_FIELDS_METHOD_NAME + "Aux", 
 				"(Ljava/lang/Object;Ljava/util/Set;)I", false);
 		mv.visitInsn(Opcodes.IADD);
-		mv.visitVarInsn(Opcodes.ISTORE, 4);
-		mv.visitIincInsn(6, 1);
-		mv.visitLabel(_39);
-		mv.visitVarInsn(Opcodes.ILOAD, 6);
-		mv.visitVarInsn(Opcodes.ILOAD, 5);
-		mv.visitJumpInsn(Opcodes.IF_ICMPLT, _15);
+		mv.visitVarInsn(Opcodes.ISTORE, 2);
+		mv.visitIincInsn(4, 1);
+		mv.visitLabel(_33);
 		mv.visitVarInsn(Opcodes.ILOAD, 4);
+		mv.visitVarInsn(Opcodes.ILOAD, 3);
+		mv.visitJumpInsn(Opcodes.IF_ICMPLT, _13);
+		mv.visitVarInsn(Opcodes.ILOAD, 2);
 
 		mv.visitInsn(Opcodes.IRETURN);
 		mv.visitMaxs(0, 0);
@@ -337,11 +335,11 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 		
 		Label _50 = new Label();
 		Label _106 = new Label();
-		Label _140 = new Label();
-		Label _153 = new Label();
-		Label _156 = new Label();
-		Label _166 = new Label();
-		Label _168 = new Label();
+		Label _139 = new Label();
+		Label _152 = new Label();
+		Label _155 = new Label();
+		Label _165 = new Label();
+		Label _167 = new Label();
 		
 		mv.visitCode();
 
@@ -351,12 +349,12 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 		mv.visitVarInsn(Opcodes.ISTORE, 3);
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
 		
-		mv.visitJumpInsn(Opcodes.IFNULL, _166);
+		mv.visitJumpInsn(Opcodes.IFNULL, _165);
 		mv.visitVarInsn(Opcodes.ALOAD, 1);
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
 		mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/Set", "contains", 
 				"(Ljava/lang/Object;)Z", true);
-		mv.visitJumpInsn(Opcodes.IFNE, _166);
+		mv.visitJumpInsn(Opcodes.IFNE, _165);
 		mv.visitVarInsn(Opcodes.ALOAD, 1);
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
 		mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/Set", "add", 
@@ -375,7 +373,7 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 		mv.visitVarInsn(Opcodes.ISTORE, 7);
 		mv.visitInsn(Opcodes.ICONST_0);
 		mv.visitVarInsn(Opcodes.ISTORE, 6);
-		mv.visitJumpInsn(Opcodes.GOTO, _156);
+		mv.visitJumpInsn(Opcodes.GOTO, _155);
 		mv.visitLabel(_50);
 		mv.visitVarInsn(Opcodes.ALOAD, 8);
 		mv.visitVarInsn(Opcodes.ILOAD, 6);
@@ -386,7 +384,7 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 				"java/lang/reflect/Field", "getModifiers", "()I", false);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
 				"java/lang/reflect/Modifier", "isStatic", "(I)Z", false);
-		mv.visitJumpInsn(Opcodes.IFNE, _153);
+		mv.visitJumpInsn(Opcodes.IFNE, _152);
 		mv.visitVarInsn(Opcodes.ALOAD, 5);
 		mv.visitInsn(Opcodes.ICONST_1);
 		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
@@ -410,28 +408,28 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 				"(Ljava/lang/Object;Ljava/lang/reflect/Field;Ljava/lang/Class;)I", false);
 		mv.visitInsn(Opcodes.IADD);
 		mv.visitVarInsn(Opcodes.ISTORE, 2);
-		mv.visitJumpInsn(Opcodes.GOTO, _153);
+		mv.visitJumpInsn(Opcodes.GOTO, _152);
 		mv.visitLabel(_106);
 		mv.visitVarInsn(Opcodes.ALOAD, 9);
 		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
 				"java/lang/Class", "isArray", "()Z", false);
-		mv.visitJumpInsn(Opcodes.IFEQ, _140);
+		mv.visitJumpInsn(Opcodes.IFEQ, _139);
 		mv.visitVarInsn(Opcodes.ALOAD, 5);
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
 		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
 				"java/lang/reflect/Field", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", false);
 		mv.visitVarInsn(Opcodes.ASTORE, 10);
 		mv.visitVarInsn(Opcodes.ALOAD, 10);
-		mv.visitJumpInsn(Opcodes.IFNULL, _153);
-		mv.visitVarInsn(Opcodes.ALOAD, 10);
-		mv.visitVarInsn(Opcodes.BIPUSH, 17);
+		mv.visitJumpInsn(Opcodes.IFNULL, _152);
 		mv.visitVarInsn(Opcodes.ILOAD, 2);
+		mv.visitVarInsn(Opcodes.ALOAD, 10);
 		mv.visitVarInsn(Opcodes.ALOAD, 1);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-				className, "handleArrayField", "(Ljava/lang/Object;IILjava/util/Set;)I", false);
+				className, "handleArrayField", "(Ljava/lang/Object;Ljava/util/Set;)I", false);
+		mv.visitInsn(Opcodes.IADD);
 		mv.visitVarInsn(Opcodes.ISTORE, 2);
-		mv.visitJumpInsn(Opcodes.GOTO, _153);
-		mv.visitLabel(_140);
+		mv.visitJumpInsn(Opcodes.GOTO, _152);
+		mv.visitLabel(_139);
 		mv.visitVarInsn(Opcodes.ILOAD, 2);
 		mv.visitVarInsn(Opcodes.ALOAD, 5);
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -443,17 +441,17 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 				"(Ljava/lang/Object;Ljava/util/Set;)I", false);
 		mv.visitInsn(Opcodes.IADD);
 		mv.visitVarInsn(Opcodes.ISTORE, 2);
-		mv.visitLabel(_153);
+		mv.visitLabel(_152);
 		mv.visitIincInsn(6, 1);
-		mv.visitLabel(_156);
+		mv.visitLabel(_155);
 		mv.visitVarInsn(Opcodes.ILOAD, 6);
 		mv.visitVarInsn(Opcodes.ILOAD, 7);
 		mv.visitJumpInsn(Opcodes.IF_ICMPLT, _50);
-		mv.visitJumpInsn(Opcodes.GOTO, _168);
-		mv.visitLabel(_166);
+		mv.visitJumpInsn(Opcodes.GOTO, _167);
+		mv.visitLabel(_165);
 		mv.visitInsn(Opcodes.ICONST_0);
 		mv.visitVarInsn(Opcodes.ISTORE, 2);
-		mv.visitLabel(_168);
+		mv.visitLabel(_167);
 		mv.visitVarInsn(Opcodes.ILOAD, 2);
 		
 		mv.visitInsn(Opcodes.IRETURN);

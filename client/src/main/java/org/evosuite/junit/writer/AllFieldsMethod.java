@@ -55,8 +55,8 @@ public class AllFieldsMethod {
 		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "else if(fieldType.isArray()) {\n");
 		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "final Object array = field.get(o);\n");
 		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "if(array != null) \n");
-		sb.append(INNER_INNER_INNER_INNER_INNER_BLOCK_SPACE + "result = "
-				+ "handleArrayField(array, prime, result, visited);\n");
+		sb.append(INNER_INNER_INNER_INNER_INNER_BLOCK_SPACE + "result += "
+				+ "handleArrayField(array, visited);\n");
 		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "}\n");
 		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "else\n");
 		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "result += "
@@ -80,15 +80,14 @@ public class AllFieldsMethod {
 	
 		sb.append("\n");
 		sb.append(METHOD_SPACE);
-		sb.append("public static int handleArrayField(Object array, int prime, \n"); 
-		sb.append(INNER_BLOCK_SPACE + "int currResult, Set<Object> visited) throws Exception {\n");
+		sb.append("private static int handleArrayField(Object array, \n"); 
+		sb.append(INNER_BLOCK_SPACE + "Set<Object> visited) throws Exception {\n");
 		
-		sb.append(BLOCK_SPACE + "int result = currResult;\n");
+		sb.append(BLOCK_SPACE + "int result = 0;\n");
 		sb.append(BLOCK_SPACE + "final int length = Array.getLength(array);\n");
 		sb.append(BLOCK_SPACE + "for (int i = 0; i < length; i ++) {\n");
 		sb.append(INNER_BLOCK_SPACE + "Object arrayElement = Array.get(array, i);\n");
-		sb.append(INNER_BLOCK_SPACE + "result = prime * result + "
-				+ "allFieldsMethodAux(arrayElement, visited);\n");
+		sb.append(INNER_BLOCK_SPACE + "result += allFieldsMethodAux(arrayElement, visited);\n");
 		sb.append(BLOCK_SPACE + "}\n");
 		sb.append(BLOCK_SPACE + "return result;\n");
 		sb.append(METHOD_SPACE + "}\n");
