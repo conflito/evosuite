@@ -38,7 +38,7 @@ public class MultiTestChromosome extends TestChromosome{
 
 	private boolean reachedMethods;
 	
-	private boolean updatedLoadersOnce;
+//	private boolean updatedLoadersOnce;
 	private boolean notInFirstRegression;
 	private boolean notInSecondRegression;
 
@@ -159,7 +159,7 @@ public class MultiTestChromosome extends TestChromosome{
 
 		c.objectDistance = this.objectDistance;
 		c.reachedMethods = this.reachedMethods;
-		c.updatedLoadersOnce = this.updatedLoadersOnce;
+//		c.updatedLoadersOnce = this.updatedLoadersOnce;
 		c.notInFirstRegression = this.notInFirstRegression;
 		c.notInSecondRegression = this.notInSecondRegression;
 		
@@ -192,14 +192,14 @@ public class MultiTestChromosome extends TestChromosome{
 			
 			Properties.setSecondRegression(false);
 			
-			if(!updatedLoadersOnce) {
+//			if(!updatedLoadersOnce) {
 				if(Properties.NOT_FOUND_FIRST_REGRESSION)
 					this.notInFirstRegression = true;
 				else if(Properties.NOT_FOUND_SECOND_REGRESSION)
 					this.notInSecondRegression = true;
-			}
+//			}
 			
-			updatedLoadersOnce = true;
+//			updatedLoadersOnce = true;
 		}
 	}
 
