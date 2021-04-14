@@ -60,7 +60,7 @@ public class ObjectDistanceCalculator {
   private static final double R = 10;
   private static final double V = 10;
   private static final double C = 10;
-  private static final int MAX_RECURSION = 4;
+  private static final int MAX_RECURSION = 100;
   private final Map<Integer, Integer> hashRecursionCntMap = new LinkedHashMap<>();
   private final Map<Integer, Double> resultCache = new LinkedHashMap<>();
 
@@ -474,7 +474,15 @@ public class ObjectDistanceCalculator {
     Collection<Field> fields = getAllFields(commonAncestor);
     double sum = 0;
     for (Field field : fields) {
+      field.setAccessible(true);
       sum += getObjectDistanceImpl(getFieldValue(field, p), getFieldValue(field, q));
+      try {
+		String pFieldValueName = field.get(p).getClass().getName();
+		String qFieldValueName = field.get(q).getClass().getName();
+		sum += Math.abs(pFieldValueName.hashCode() - qFieldValueName.hashCode());
+	  } catch (Exception e) {
+		logger.warn("EXCE");
+	  }       
     }
     if (sum == 0.0) {
       return sum;

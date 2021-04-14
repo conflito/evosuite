@@ -249,7 +249,8 @@ public class MSecurityManager extends SecurityManager {
 			throw new SecurityException("Current thread is not privileged");
 		}
 		if (privilegedThreadToIgnore != null) {
-			throw new IllegalStateException("The thread is already executing unsafe code");
+//			throw new IllegalStateException("The thread is already executing unsafe code");
+			return ;
 		}
 		privilegedThreadToIgnore = Thread.currentThread();
 	}
@@ -285,7 +286,8 @@ public class MSecurityManager extends SecurityManager {
 					"Only a privileged thread can return from unsafe code execution");
 		}
 		if (privilegedThreadToIgnore==null) {
-			throw new IllegalStateException("The thread was not executing unsafe code");
+//			throw new IllegalStateException("The thread was not executing unsafe code");
+			return ;
 		}
 		privilegedThreadToIgnore = null;
 	}
