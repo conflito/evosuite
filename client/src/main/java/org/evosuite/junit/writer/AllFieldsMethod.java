@@ -24,7 +24,7 @@ public class AllFieldsMethod {
 		
 		sb.append("\n");
 		sb.append(METHOD_SPACE);
-		sb.append("public static int allFieldsMethod(Object o) throws Exception { \n");
+		sb.append("public static double allFieldsMethod(Object o) throws Exception { \n");
 		sb.append(BLOCK_SPACE + "return allFieldsMethodAux(o, new HashSet<>());\n");
 		sb.append(METHOD_SPACE + "}\n");
 		
@@ -36,8 +36,8 @@ public class AllFieldsMethod {
 		
 		sb.append("\n");
 		sb.append(METHOD_SPACE);
-		sb.append("private static int allFieldsMethodAux(Object o, Set<Object> visited) throws Exception { \n");
-		sb.append(BLOCK_SPACE + "int result = 1;\n");
+		sb.append("private static double allFieldsMethodAux(Object o, Set<Object> visited) throws Exception { \n");
+		sb.append(BLOCK_SPACE + "double result = 1;\n");
 		sb.append(BLOCK_SPACE + "final int prime = 17;\n");
 		
 		sb.append(BLOCK_SPACE + "if(o != null && !visited.contains(o)) {\n");
@@ -80,10 +80,10 @@ public class AllFieldsMethod {
 	
 		sb.append("\n");
 		sb.append(METHOD_SPACE);
-		sb.append("private static int handleArrayField(Object array, \n"); 
+		sb.append("private static double handleArrayField(Object array, \n"); 
 		sb.append(INNER_BLOCK_SPACE + "Set<Object> visited) throws Exception {\n");
 		
-		sb.append(BLOCK_SPACE + "int result = 0;\n");
+		sb.append(BLOCK_SPACE + "double result = 0;\n");
 		sb.append(BLOCK_SPACE + "final int length = Array.getLength(array);\n");
 		sb.append(BLOCK_SPACE + "for (int i = 0; i < length; i ++) {\n");
 		sb.append(INNER_BLOCK_SPACE + "Object arrayElement = Array.get(array, i);\n");
