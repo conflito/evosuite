@@ -1465,6 +1465,9 @@ public class Properties {
 	@Parameter(key = "show_ff", group = "Runtime", description = "Should show fitness function values")
 	public static boolean SHOW_FF = false;
 	
+	@Parameter(key = "show_distance", group = "Runtime", description = "Should show the distance logging messages?")
+	public static boolean SHOW_DISTANCE = false;
+	
 	/** Method under test */
 	@Parameter(key = "target_method_list", group = "Runtime", description = "A colon(:) separated list of methods for which to generate tests")
 	public static String TARGET_METHOD_LIST = "";
