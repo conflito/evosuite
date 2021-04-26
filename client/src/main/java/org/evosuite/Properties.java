@@ -2534,7 +2534,7 @@ public class Properties {
 	}
 	
 	public static final String ALL_FIELDS_METHOD_NAME = "allFieldsMethod";
-	public static final String ALL_FIELDS_METHOD_DESC = "(Ljava/lang/Object;)D";
+	public static final String ALL_FIELDS_METHOD_DESC = "(Ljava/lang/Object;)J";
 	
 	public static Class<?> INSTRUMENTED_CLASS = null;
 	public static Method INSTRUMENTED_METHOD = null;

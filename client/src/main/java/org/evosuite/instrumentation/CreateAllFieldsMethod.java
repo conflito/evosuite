@@ -74,6 +74,8 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 	public void visitEnd() {
 		if(!isInterface && !isAnonymous && !isEnum) {
 			createAuxMethods();
+			createIgnoreClassMethod();
+			createIgnoreFieldMethod();
 			createHandlePrimitiveFieldMethod();
 			createHandleArrayFieldMethod();
 			createAuxAllFieldsMethod();
@@ -97,9 +99,9 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 		mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/util/HashSet", "<init>", 
 				"()V", false);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-				className, Properties.ALL_FIELDS_METHOD_NAME + "Aux", "(Ljava/lang/Object;Ljava/util/Set;)D", false);
+				className, Properties.ALL_FIELDS_METHOD_NAME + "Aux", "(Ljava/lang/Object;Ljava/util/Set;)J", false);
 		
-		mv.visitInsn(Opcodes.DRETURN);
+		mv.visitInsn(Opcodes.LRETURN);
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
 	}
@@ -257,15 +259,15 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 		String[] exceptions = {"java/lang/Exception"};
 		
 		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC,
-				"handleArrayField", "(Ljava/lang/Object;Ljava/util/Set;)D", null, exceptions);
+				"handleArrayField", "(Ljava/lang/Object;Ljava/util/Set;)J", null, exceptions);
 		
 		Label _14 = new Label();
 		Label _34 = new Label();
 		
 		mv.visitCode();
 		
-		mv.visitInsn(Opcodes.DCONST_0);
-		mv.visitVarInsn(Opcodes.DSTORE, 2);
+		mv.visitInsn(Opcodes.LCONST_0);
+		mv.visitVarInsn(Opcodes.LSTORE, 2);
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
 				"java/lang/reflect/Array", "getLength", "(Ljava/lang/Object;)I", false);
@@ -280,22 +282,22 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
 				"java/lang/reflect/Array", "get", "(Ljava/lang/Object;I)Ljava/lang/Object;", false);
 		mv.visitVarInsn(Opcodes.ASTORE, 6);
-		mv.visitVarInsn(Opcodes.DLOAD, 2);
+		mv.visitVarInsn(Opcodes.LLOAD, 2);
 		mv.visitVarInsn(Opcodes.ALOAD, 6);
 		mv.visitVarInsn(Opcodes.ALOAD, 1);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
 				className, Properties.ALL_FIELDS_METHOD_NAME + "Aux", 
-				"(Ljava/lang/Object;Ljava/util/Set;)D", false);
-		mv.visitInsn(Opcodes.DADD);
-		mv.visitVarInsn(Opcodes.DSTORE, 2);
+				"(Ljava/lang/Object;Ljava/util/Set;)J", false);
+		mv.visitInsn(Opcodes.LADD);
+		mv.visitVarInsn(Opcodes.LSTORE, 2);
 		mv.visitIincInsn(5, 1);
 		mv.visitLabel(_34);
 		mv.visitVarInsn(Opcodes.ILOAD, 5);
 		mv.visitVarInsn(Opcodes.ILOAD, 4);
 		mv.visitJumpInsn(Opcodes.IF_ICMPLT, _14);
-		mv.visitVarInsn(Opcodes.DLOAD, 2);
+		mv.visitVarInsn(Opcodes.LLOAD, 2);
 
-		mv.visitInsn(Opcodes.DRETURN);
+		mv.visitInsn(Opcodes.LRETURN);
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
 		
@@ -325,36 +327,83 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 		}
 	}
 	
+	private void createIgnoreClassMethod() {
+		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC,
+				"isClassToIgnore", "(Ljava/lang/Class;)Z", null, null);
+		mv.visitCode();
+		
+		Label _25 = new Label();
+		
+		mv.visitVarInsn(Opcodes.ALOAD, 0);
+		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
+				"java/lang/Class", "getCanonicalName", "()Ljava/lang/String;", false);
+		mv.visitVarInsn(Opcodes.ASTORE, 1);
+		mv.visitVarInsn(Opcodes.ALOAD, 1);
+		mv.visitLdcInsn("java.util.concurrent.ExecutorService");
+		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
+				"java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
+		
+		mv.visitJumpInsn(Opcodes.IFNE, _25);
+		mv.visitVarInsn(Opcodes.ALOAD, 1);
+		mv.visitLdcInsn("com.squareup.okhttp.internal.DiskLruCache");
+		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
+				"java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
+		mv.visitJumpInsn(Opcodes.IFNE, _25);
+		mv.visitInsn(Opcodes.ICONST_0);
+		mv.visitInsn(Opcodes.IRETURN);
+		mv.visitLabel(_25);
+		mv.visitInsn(Opcodes.ICONST_1);
+		mv.visitInsn(Opcodes.IRETURN);
+		mv.visitMaxs(0, 0);
+		mv.visitEnd();
+	}
+	
+	private void createIgnoreFieldMethod() {
+		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC,
+				"isFieldToIgnore", "(Ljava/lang/reflect/Field;)Z", null, null);
+		mv.visitCode();
+		
+		mv.visitVarInsn(Opcodes.ALOAD, 0);
+		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
+				"java/lang/reflect/Field", "getName", "()Ljava/lang/String;", false);
+		mv.visitLdcInsn("mockitoInterceptor");
+		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
+				"java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
+		mv.visitInsn(Opcodes.IRETURN);
+		mv.visitMaxs(0, 0);
+		mv.visitEnd();
+	}
+	
 	private void createAuxAllFieldsMethod() {
 		String[] exceptions = {"java/lang/Exception"};
 		
 		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PRIVATE 
 					| Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC,
-				Properties.ALL_FIELDS_METHOD_NAME + "Aux", "(Ljava/lang/Object;Ljava/util/Set;)D",
+				Properties.ALL_FIELDS_METHOD_NAME + "Aux", "(Ljava/lang/Object;Ljava/util/Set;)J",
 				null, exceptions);
 		
 		Label _51 = new Label();
-		Label _109 = new Label();
-		Label _142 = new Label();
-		Label _155 = new Label();
+		Label _125 = new Label();
 		Label _158 = new Label();
-		Label _168 = new Label();
-		Label _170 = new Label();
+		Label _171 = new Label();
+		Label _174 = new Label();
+		Label _184 = new Label();
+		Label _186 = new Label();
 		
 		mv.visitCode();
 
-		mv.visitInsn(Opcodes.DCONST_1);
-		mv.visitVarInsn(Opcodes.DSTORE, 2);
+		mv.visitInsn(Opcodes.LCONST_1);
+		mv.visitVarInsn(Opcodes.LSTORE, 2);
 		mv.visitVarInsn(Opcodes.BIPUSH, 17);
 		mv.visitVarInsn(Opcodes.ISTORE, 4);
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
 		
-		mv.visitJumpInsn(Opcodes.IFNULL, _168);
+		mv.visitJumpInsn(Opcodes.IFNULL, _184);
 		mv.visitVarInsn(Opcodes.ALOAD, 1);
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
 		mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/Set", "contains", 
 				"(Ljava/lang/Object;)Z", true);
-		mv.visitJumpInsn(Opcodes.IFNE, _168);
+		mv.visitJumpInsn(Opcodes.IFNE, _184);
 		mv.visitVarInsn(Opcodes.ALOAD, 1);
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
 		mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/Set", "add", 
@@ -373,7 +422,7 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 		mv.visitVarInsn(Opcodes.ISTORE, 8);
 		mv.visitInsn(Opcodes.ICONST_0);
 		mv.visitVarInsn(Opcodes.ISTORE, 7);
-		mv.visitJumpInsn(Opcodes.GOTO, _158);
+		mv.visitJumpInsn(Opcodes.GOTO, _174);
 		mv.visitLabel(_51);
 		mv.visitVarInsn(Opcodes.ALOAD, 9);
 		mv.visitVarInsn(Opcodes.ILOAD, 7);
@@ -384,8 +433,13 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 				"java/lang/reflect/Field", "getModifiers", "()I", false);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
 				"java/lang/reflect/Modifier", "isStatic", "(I)Z", false);
-		mv.visitJumpInsn(Opcodes.IFNE, _155);
+		mv.visitJumpInsn(Opcodes.IFNE, _171);
 		mv.visitVarInsn(Opcodes.ALOAD, 6);
+		
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
+				className, "isFieldToIgnore", "(Ljava/lang/reflect/Field;)Z", false);
+		mv.visitJumpInsn(Opcodes.IFNE, _171);
+		mv.visitVarInsn(Opcodes.ALOAD, 6);		
 		mv.visitInsn(Opcodes.ICONST_1);
 		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
 				"java/lang/reflect/Field", "setAccessible", "(Z)V", false);
@@ -394,44 +448,48 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 				"java/lang/reflect/Field", "getType", "()Ljava/lang/Class;", false);
 		mv.visitVarInsn(Opcodes.ASTORE, 10);
 		mv.visitVarInsn(Opcodes.ALOAD, 10);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
+				className, "isClassToIgnore", "(Ljava/lang/Class;)Z", false);
+		mv.visitJumpInsn(Opcodes.IFNE, _171);
+		mv.visitVarInsn(Opcodes.ALOAD, 10);
 		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
 				"java/lang/Class", "isPrimitive", "()Z", false);
-		mv.visitJumpInsn(Opcodes.IFEQ, _109);
-		mv.visitLdcInsn(17.0d);
-		mv.visitVarInsn(Opcodes.DLOAD, 2);
-		mv.visitInsn(Opcodes.DMUL);
+		mv.visitJumpInsn(Opcodes.IFEQ, _125);
+		mv.visitLdcInsn(17l);
+		mv.visitVarInsn(Opcodes.LLOAD, 2);
+		mv.visitInsn(Opcodes.LMUL);
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
 		mv.visitVarInsn(Opcodes.ALOAD, 6);
 		mv.visitVarInsn(Opcodes.ALOAD, 10);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
 				className, "handlePrimitiveField", 
 				"(Ljava/lang/Object;Ljava/lang/reflect/Field;Ljava/lang/Class;)I", false);
-		mv.visitInsn(Opcodes.I2D);
-		mv.visitInsn(Opcodes.DADD);
-		mv.visitVarInsn(Opcodes.DSTORE, 2);
-		mv.visitJumpInsn(Opcodes.GOTO, _155);
-		mv.visitLabel(_109);
+		mv.visitInsn(Opcodes.I2L);
+		mv.visitInsn(Opcodes.LADD);
+		mv.visitVarInsn(Opcodes.LSTORE, 2);
+		mv.visitJumpInsn(Opcodes.GOTO, _171);
+		mv.visitLabel(_125);
 		mv.visitVarInsn(Opcodes.ALOAD, 10);
 		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
 				"java/lang/Class", "isArray", "()Z", false);
-		mv.visitJumpInsn(Opcodes.IFEQ, _142);
+		mv.visitJumpInsn(Opcodes.IFEQ, _158);
 		mv.visitVarInsn(Opcodes.ALOAD, 6);
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
 		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
 				"java/lang/reflect/Field", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", false);
 		mv.visitVarInsn(Opcodes.ASTORE, 11);
 		mv.visitVarInsn(Opcodes.ALOAD, 11);
-		mv.visitJumpInsn(Opcodes.IFNULL, _155);
-		mv.visitVarInsn(Opcodes.DLOAD, 2);
+		mv.visitJumpInsn(Opcodes.IFNULL, _171);
+		mv.visitVarInsn(Opcodes.LLOAD, 2);
 		mv.visitVarInsn(Opcodes.ALOAD, 11);
 		mv.visitVarInsn(Opcodes.ALOAD, 1);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-				className, "handleArrayField", "(Ljava/lang/Object;Ljava/util/Set;)D", false);
-		mv.visitInsn(Opcodes.DADD);
-		mv.visitVarInsn(Opcodes.DSTORE, 2);
-		mv.visitJumpInsn(Opcodes.GOTO, _155);
-		mv.visitLabel(_142);
-		mv.visitVarInsn(Opcodes.DLOAD, 2);
+				className, "handleArrayField", "(Ljava/lang/Object;Ljava/util/Set;)J", false);
+		mv.visitInsn(Opcodes.LADD);
+		mv.visitVarInsn(Opcodes.LSTORE, 2);
+		mv.visitJumpInsn(Opcodes.GOTO, _171);
+		mv.visitLabel(_158);
+		mv.visitVarInsn(Opcodes.LLOAD, 2);
 		mv.visitVarInsn(Opcodes.ALOAD, 6);
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
 		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
@@ -439,23 +497,23 @@ public class CreateAllFieldsMethod extends ClassVisitor{
 		mv.visitVarInsn(Opcodes.ALOAD, 1);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
 				className, Properties.ALL_FIELDS_METHOD_NAME + "Aux",
-				"(Ljava/lang/Object;Ljava/util/Set;)D", false);
-		mv.visitInsn(Opcodes.DADD);
-		mv.visitVarInsn(Opcodes.DSTORE, 2);
-		mv.visitLabel(_155);
+				"(Ljava/lang/Object;Ljava/util/Set;)J", false);
+		mv.visitInsn(Opcodes.LADD);
+		mv.visitVarInsn(Opcodes.LSTORE, 2);
+		mv.visitLabel(_171);
 		mv.visitIincInsn(7, 1);
-		mv.visitLabel(_158);
+		mv.visitLabel(_174);
 		mv.visitVarInsn(Opcodes.ILOAD, 7);
 		mv.visitVarInsn(Opcodes.ILOAD, 8);
 		mv.visitJumpInsn(Opcodes.IF_ICMPLT, _51);
-		mv.visitJumpInsn(Opcodes.GOTO, _170);
-		mv.visitLabel(_168);
-		mv.visitInsn(Opcodes.DCONST_0);
-		mv.visitVarInsn(Opcodes.DSTORE, 2);
-		mv.visitLabel(_170);
-		mv.visitVarInsn(Opcodes.DLOAD, 2);
+		mv.visitJumpInsn(Opcodes.GOTO, _186);
+		mv.visitLabel(_184);
+		mv.visitInsn(Opcodes.LCONST_0);
+		mv.visitVarInsn(Opcodes.LSTORE, 2);
+		mv.visitLabel(_186);
+		mv.visitVarInsn(Opcodes.LLOAD, 2);
 		
-		mv.visitInsn(Opcodes.DRETURN);
+		mv.visitInsn(Opcodes.LRETURN);
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
 	}
