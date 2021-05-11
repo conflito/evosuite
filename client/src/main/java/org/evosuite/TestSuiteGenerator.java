@@ -235,6 +235,17 @@ public class TestSuiteGenerator {
 
 		TestSuiteChromosome testCases = generateTests();	
 
+		if(Properties.CRITERION[0] == Criterion.METHODCALL) {
+			double fitness = testCases.getFitness();
+			if(fitness > 0.0) {
+				testCases = new TestSuiteChromosome();
+			}
+			else {
+				testCases.getTestChromosomes().removeIf(t -> t.getLastExecutionResult() != null &&
+						t.getFitness() > 0.0);
+			}
+		}
+		
 		postProcessTests(testCases);
 		ClientServices.getInstance().getClientNode().publishPermissionStatistics();
 		PermissionStatistics.getInstance().printStatistics(LoggingUtils.getEvoLogger());
