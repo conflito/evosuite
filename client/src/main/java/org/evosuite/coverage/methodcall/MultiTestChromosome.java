@@ -76,18 +76,22 @@ public class MultiTestChromosome extends TestChromosome{
 		try {
 			otherResult = 
 				TestCaseExecutor.getInstance().execute(theSameTestForTheOtherClassLoader.getTestCase());
+			compilesInRegression = true;
 		}
 		catch(Exception e) {
-			logger.warn("No compile in regression");
+			if(Properties.SHOW_FF)
+				logger.warn("No compile in regression");
 			compilesInRegression = false;
 		}
 		observer.setSecondRegressionFlag(true);
 		try {
 			secondOtherResult =
 				TestCaseExecutor.getInstance().execute(theSameTestForTheSecondClassLoader.getTestCase());
+			compilesInSecondRegression = true;
 		}
 		catch(Exception e) {
-			logger.warn("No compile in second regression");
+			if(Properties.SHOW_FF)
+				logger.warn("No compile in second regression");
 			compilesInSecondRegression = false;
 		}
 		observer.setRegressionFlag(false);
