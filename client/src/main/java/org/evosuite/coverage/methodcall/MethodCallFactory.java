@@ -26,7 +26,6 @@ public class MethodCallFactory extends AbstractFitnessFactory<MethodCallTestFitn
 		if(!targetMethodList.equals("") && !regressionCP.equals("") &&
 				!secondRegressionCP.equals("")) {
 			String[] methods = targetMethodList.split(":");
-			boolean shouldAppearInTest = true;
 			
 			List<MethodCallGoal> callGoals = new ArrayList<>();
 			
@@ -39,10 +38,8 @@ public class MethodCallFactory extends AbstractFitnessFactory<MethodCallTestFitn
 				if(randomLine.isPresent()) {
 					int line = randomLine.get().intValue();
 					MethodCallGoal methodCallGoal = 
-							new MethodCallGoal(className, methodName, 
-									line, shouldAppearInTest);
-					shouldAppearInTest = false;
-					
+							new MethodCallGoal(className, methodName, line);
+
 					callGoals.add(methodCallGoal);
 				}
 				else {

@@ -17,12 +17,8 @@ public class MethodCallGoal implements Serializable{
 	
 	private LineGoal lineGoal;
 	
-	private boolean shouldAppearInTest;
-	
-	public MethodCallGoal(String className, String methodName, Integer line, 
-			boolean shouldAppearInTest) {
+	public MethodCallGoal(String className, String methodName, Integer line) {
 		this.lineGoal = new LineGoal(className, methodName, line);
-		this.shouldAppearInTest = shouldAppearInTest;
 	}
 	
 	public String getClassName() {
@@ -33,29 +29,8 @@ public class MethodCallGoal implements Serializable{
 		return lineGoal.getMethodName();
 	}
 	
-	public boolean shouldAppearInTestStatements() {
-		return shouldAppearInTest;
-	}
-	
 	public double distanceToGoal(ExecutionResult result) {
 		return lineGoal.distanceToGoal(result);
 	}
-	
-	public boolean appearsInTestStatements(ExecutionResult executionResult) {
-		for (Statement stmt : executionResult.test) {
-			if (stmt instanceof MethodStatement) {
-				EntityWithParametersStatement ps = (EntityWithParametersStatement)stmt;
-				String className  = ps.getDeclaringClassName();
-				String methodName = ps.getMethodName() + ps.getDescriptor();
-
-				if(this.lineGoal.getClassName().equals(className) &&
-						this.lineGoal.getMethodName().equals(methodName)) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}	
 
 }
