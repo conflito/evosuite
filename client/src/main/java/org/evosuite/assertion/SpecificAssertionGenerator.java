@@ -76,6 +76,8 @@ public class SpecificAssertionGenerator extends AssertionGenerator {
 			while (declaringClass.contains("$"))
 				declaringClass = declaringClass.substring(0, declaringClass.indexOf("$"));
 
+			if(declaringClass.startsWith("java.net.Cookie"))
+				return false;
 			if (declaringClass.equals(Properties.TARGET_CLASS) || 
 					(!Properties.TARGET_CLASS_PREFIX.isEmpty() 
 							&& declaringClass.startsWith(Properties.TARGET_CLASS_PREFIX)))
