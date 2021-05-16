@@ -1456,8 +1456,12 @@ public class Properties {
 	public static String TARGET_METHOD_PREFIX = "";
 	
 	/** Methods to cover in the test */
-	@Parameter(key = "COVER_METHODS", group = "Runtime", description = "Methods to cover")
+	@Parameter(key = "cover_methods", group = "Runtime", description = "Methods to cover")
 	public static String COVER_METHODS = "";
+	
+	/** Methods to cover in the test */
+	@Parameter(key = "cover_lines", group = "Runtime", description = "Altered lines to cover")
+	public static String COVER_LINES = "";
 
 	@Parameter(key = "distance_threshold", group = "Runtime", description = "Threshold to consider object distance")
 	public static double DISTANCE_THRESHOLD = 0.05;
@@ -2533,6 +2537,7 @@ public class Properties {
 		SECOND_REGRESSION = b;
 	}
 	
+	public static final String ALL_FIELDS_CALCULATOR_NAME = "org.evosuite.AllFieldsCalculator";
 	public static final String ALL_FIELDS_METHOD_NAME = "allFieldsMethod";
 	public static final String ALL_FIELDS_METHOD_DESC = "(Ljava/lang/Object;)J";
 	
