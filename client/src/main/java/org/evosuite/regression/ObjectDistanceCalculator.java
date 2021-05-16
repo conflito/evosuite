@@ -59,9 +59,6 @@ public class ObjectDistanceCalculator {
 
 	private static final Logger logger = LoggerFactory.getLogger(ObjectDistanceCalculator.class);
 	private static final double B = 1;
-//	private static final double R = 10;
-//	private static final double V = 10;
-//	private static final double C = 10;
 	private static final int MAX_RECURSION = 100;
 	private final Map<Integer, Integer> hashRecursionCntMap = new LinkedHashMap<>();
 	private final Map<Integer, Double> resultCache = new LinkedHashMap<>();
@@ -72,35 +69,6 @@ public class ObjectDistanceCalculator {
 		ObjectDistanceCalculator calculator = new ObjectDistanceCalculator();
 		return calculator.getObjectDistanceImpl(p, q) + normalize(calculator.numDifferentVariables);
 	}
-
-//	private static Collection<Field> getAllFields(Class<?> commonAncestor) {
-//		Collection<Field> result = new ArrayList<>();
-//		Class<?> ancestor = commonAncestor;
-//		while (!ancestor.equals(Object.class)) {
-//			result.addAll(Arrays.asList(ancestor.getDeclaredFields()));
-//			ancestor = ancestor.getSuperclass();
-//		}
-//		return result;
-//	}
-
-//	private static Class<?> getCommonAncestor(Object p, Object q) {
-//		double pInheritCnt = getTypeDistance(Object.class, p);
-//		double qInheritCnt = getTypeDistance(Object.class, q);
-//
-//		Class<?> pClass = p.getClass();
-//		Class<?> qClass = q.getClass();
-//
-//		while (!pClass.equals(qClass)) {
-//			if (pInheritCnt > qInheritCnt) {
-//				pClass = pClass.getSuperclass();
-//				pInheritCnt--;
-//			} else {
-//				qClass = qClass.getSuperclass();
-//				qInheritCnt--;
-//			}
-//		}
-//		return pClass;
-//	}
 
 	private static double getElementaryDistance(Boolean p, Boolean q) {
 		if (p.equals(q)) {
@@ -113,78 +81,9 @@ public class ObjectDistanceCalculator {
 		return x / (x + 1.0);
 	}
 
-//	private static double normalizeTowardsZero(double x) {
-//		return 1.0 / (x + 1.0);
-//	}
-//
-//	private static Object getFieldValue(Field field, Object p) {
-//		try {
-//			Class<?> fieldType = field.getType();
-//			field.setAccessible(true);
-//			if (fieldType.isPrimitive()) {
-//				if (fieldType.equals(Boolean.TYPE)) {
-//					return field.getBoolean(p);
-//				}
-//				if (fieldType.equals(Integer.TYPE)) {
-//					return field.getInt(p);
-//				}
-//				if (fieldType.equals(Byte.TYPE)) {
-//					return field.getByte(p);
-//				}
-//				if (fieldType.equals(Short.TYPE)) {
-//					return field.getShort(p);
-//				}
-//				if (fieldType.equals(Long.TYPE)) {
-//					return field.getLong(p);
-//				}
-//				if (fieldType.equals(Double.TYPE)) {
-//					return field.getDouble(p);
-//				}
-//				if (fieldType.equals(Float.TYPE)) {
-//					return field.getFloat(p);
-//				}
-//				if (fieldType.equals(Character.TYPE)) {
-//					return field.getChar(p);
-//				}
-//				throw new UnsupportedOperationException(
-//						"Primitive type " + fieldType + " not implemented!");
-//			}
-//			return field.get(p);
-//		} catch (IllegalAccessException exc) {
-//			throw new RuntimeException(exc);
-//		}
-//	}
-
 	private static Integer getHasCode(Object p, Object q) {
 		return ((p == null) ? 0 : p.hashCode()) + ((q == null) ? 0 : q.hashCode());
 	}
-
-//	private static Collection<Field> getNonSharedFields(Class<?> commonAncestor, Object p) {
-//		Collection<Field> result = new ArrayList<>();
-//		Class<?> ancestor = p.getClass();
-//		while (!ancestor.equals(commonAncestor)) {
-//			result.addAll(Arrays.asList(ancestor.getDeclaredFields()));
-//			ancestor = ancestor.getSuperclass();
-//		}
-//		return result;
-//	}
-
-//	private static double getTypeDistance(Class<?> commonAncestor, Object p) {
-//		double result = 0.0;
-//		Class<?> ancestor = p.getClass();
-//		while (!ancestor.equals(commonAncestor)) {
-//			ancestor = ancestor.getSuperclass();
-//			result++;
-//		}
-//		return result;
-//	}
-
-//	private static double getTypeDistance(Class<?> commonAncestor, Object p, Object q) {
-//		double result = getTypeDistance(commonAncestor, p) + getTypeDistance(commonAncestor, q);
-//		result += getNonSharedFields(commonAncestor, p).size() * R;
-//		result += getNonSharedFields(commonAncestor, q).size() * R;
-//		return result;
-//	}
 
 	private double getElementaryDistance(Character p, Character q) {
 		if (p.equals(q)) {
@@ -513,13 +412,10 @@ public class ObjectDistanceCalculator {
 			
 			return 0.0;
 		}
-
-		//    Class<?> commonAncestor = getCommonAncestor(p, q);
-		//    double distance = getTypeDistance(commonAncestor, p, q);
-		//    distance += getFieldDistance(commonAncestor, p, q);
-		//    resultCache.put(getHasCode(p, q), distance);
-		//    return distance;
 		double distance = getObjectMapDistance(getFieldMap(p), getFieldMap(q));
+		String pName = p.getClass().getCanonicalName();
+		String qName = q.getClass().getCanonicalName();
+		distance += getElementaryDistance(pName, qName);
 
 		if(Properties.SHOW_DISTANCE)
 			logger.warn("Composite distance for " + 
@@ -549,26 +445,6 @@ public class ObjectDistanceCalculator {
 		}
 		return result;
 	}
-
-//	private double getFieldDistance(Class<?> commonAncestor, Object p, Object q) {
-//		Collection<Field> fields = getAllFields(commonAncestor);
-//		double sum = 0;
-//		for (Field field : fields) {
-//			field.setAccessible(true);
-//			sum += getObjectDistanceImpl(getFieldValue(field, p), getFieldValue(field, q));
-//			try {
-//				String pFieldValueName = field.get(p).getClass().getName();
-//				String qFieldValueName = field.get(q).getClass().getName();
-//				sum += Math.abs(pFieldValueName.hashCode() - qFieldValueName.hashCode());
-//			} catch (Exception e) {
-//				logger.warn("EXCE");
-//			}       
-//		}
-//		if (sum == 0.0) {
-//			return sum;
-//		}
-//		return sum / fields.size();
-//	}
 
 	public int getNumDifferentVariables() {
 		return numDifferentVariables;
