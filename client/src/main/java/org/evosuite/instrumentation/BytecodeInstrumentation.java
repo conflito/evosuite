@@ -208,10 +208,6 @@ public class BytecodeInstrumentation {
 				cv = new AccessibleClassAdapter(cv, className);
 			}
 
-			// Insert method that travels all fields
-			if(Properties.CRITERION[0] == Criterion.METHODCALL) {
-				cv = new CreateAllFieldsMethod(cv, className, classNameWithDots);
-			}
 			
 			cv = new RemoveFinalClassAdapter(cv);
 

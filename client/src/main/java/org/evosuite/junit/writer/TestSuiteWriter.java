@@ -244,11 +244,6 @@ public class TestSuiteWriter implements Opcodes {
             File file = new File(dir + "/" + name + ".java");
             //executor.newObservers();
             content = getUnitTestsAllInSameFile(name, results);
-            ////////////////
-            content = content.replaceAll("\\S*\\." 
-            		+ Properties.ALL_FIELDS_METHOD_NAME, 
-            		Properties.ALL_FIELDS_METHOD_NAME);
-            ///////////////////
             FileIOUtils.writeFile(content, file);
             generated.add(file);
         } else {
@@ -502,6 +497,8 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(";");
             builder.append(NEWLINE);
         }
+        
+        builder.append("import " + Properties.ALL_FIELDS_CALCULATOR_NAME + ";" + NEWLINE);
 
         builder.append(NEWLINE);
 

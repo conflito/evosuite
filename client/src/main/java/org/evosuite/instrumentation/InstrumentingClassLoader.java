@@ -229,15 +229,13 @@ public class InstrumentingClassLoader extends ClassLoader {
 			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,byteBuffer.length);			
 			
 			classes.put(fullyQualifiedTargetClass, result);
-			if(!isRegression && fullyQualifiedTargetClass.equals(Properties.TARGET_CLASS) 
-					&& Properties.INSTRUMENTED_CLASS == null) {
-				Properties.INSTRUMENTED_CLASS = result;
-				for(Method m: result.getDeclaredMethods()) {
-					if(m.getName().equals(Properties.ALL_FIELDS_METHOD_NAME)) {
-						Properties.INSTRUMENTED_METHOD = m;
-						break;
-					}
-				}
+			if(!isRegression && Properties.INSTRUMENTED_CLASS == null) {
+
+				Class<?> c = Class.forName(Properties.ALL_FIELDS_CALCULATOR_NAME);
+				Object o = c.newInstance();
+				Properties.INSTRUMENTED_CLASS = o.getClass();
+				Method m = o.getClass().getMethod(Properties.ALL_FIELDS_METHOD_NAME, Object.class);
+				Properties.INSTRUMENTED_METHOD = m;
 			}
 			
 			logger.info("Loaded class: " + fullyQualifiedTargetClass);

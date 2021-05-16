@@ -2,11 +2,14 @@ package org.evosuite.junit.writer;
 
 import static org.evosuite.junit.writer.TestSuiteWriterUtils.*;
 
+@Deprecated
 public class AllFieldsMethod {
 
 	public static final String INNER_INNER_INNER_INNER_BLOCK_SPACE = "            ";
 	public static final String INNER_INNER_INNER_INNER_INNER_BLOCK_SPACE = "              ";
 	public static final String INNER_INNER_INNER_INNER_INNER_INNER_BLOCK_SPACE = "                ";
+	public static final String INNER_INNER_INNER_INNER_INNER_INNER_INNER_BLOCK_SPACE = "                  ";
+
 	
 	public static String getSpecificMethod() {
 		StringBuilder sb = new StringBuilder();
@@ -43,16 +46,18 @@ public class AllFieldsMethod {
 		
 		sb.append(BLOCK_SPACE + "if(o != null && !visited.contains(o)) {\n");
 		sb.append(INNER_BLOCK_SPACE + "visited.add(o);\n");
-		sb.append(INNER_BLOCK_SPACE + "Field[] fields = o.getClass().getDeclaredFields();\n");
-		sb.append(INNER_BLOCK_SPACE + "for(Field field: fields) { \n");
-		sb.append(INNER_INNER_BLOCK_SPACE + "if(!Modifier.isStatic(field.getModifiers()) "
-				+ "&& !isFieldToIgnore(field)) {\n");
+		sb.append(INNER_BLOCK_SPACE + "if(!isClassToIgnore(o.getClass())) {\n");
+		sb.append(INNER_INNER_BLOCK_SPACE + "String className = o.getClass().getCanonicalName();\n");
+		sb.append(INNER_INNER_BLOCK_SPACE + "result = className != null?prime * result  + className.hashCode() : 1;\n");
+		sb.append(INNER_INNER_BLOCK_SPACE + "Field[] fields = o.getClass().getDeclaredFields();\n");
+		sb.append(INNER_INNER_BLOCK_SPACE + "for(Field field: fields) { \n");
+		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "if(!Modifier.isStatic(field.getModifiers()) "
+				+ "&& !field.isSynthetic() && !isFieldToIgnore(field)) {\n");
 		
-		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "field.setAccessible(true);\n");
-		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "Class<?> fieldType = field.getType();\n");
+		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "field.setAccessible(true);\n");
+		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "Class<?> fieldType = field.getType();\n");
 		sb.append("\n");
 		
-		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "if(!isClassToIgnore(fieldType)) {\n");
 
 		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "if(fieldType.isPrimitive()) \n");
 		sb.append(INNER_INNER_INNER_INNER_INNER_BLOCK_SPACE + "result = prime * result + "
@@ -65,11 +70,15 @@ public class AllFieldsMethod {
 		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "}\n");
 		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "else\n");
 		sb.append(INNER_INNER_INNER_INNER_INNER_BLOCK_SPACE + "result += "
-				+ "allFieldsMethodAux(field.get(o), visited);\n");
+				+ "allFieldsMethodAux(field.get(o), visited);\n");		
 		
 		sb.append(INNER_INNER_INNER_BLOCK_SPACE + "}\n");
 		sb.append(INNER_INNER_BLOCK_SPACE + "}\n");
+		
 		sb.append(INNER_BLOCK_SPACE + "}\n");
+		sb.append(BLOCK_SPACE + "}\n");
+		sb.append(BLOCK_SPACE + "else if(o == null && !visited.contains(o)){\n");
+		sb.append(INNER_BLOCK_SPACE + "result = prime;\n");
 		sb.append(BLOCK_SPACE + "}\n");
 		sb.append(BLOCK_SPACE + "else {\n");
 		sb.append(INNER_BLOCK_SPACE + "result = 0;\n");
@@ -159,10 +168,22 @@ public class AllFieldsMethod {
 		sb.append(METHOD_SPACE);
 		sb.append("private static boolean isClassToIgnore(Class<?> clazz) {\n");
 		sb.append(BLOCK_SPACE + "String className = clazz.getCanonicalName();\n");
-		sb.append(BLOCK_SPACE + "return className.equals"
+		sb.append(BLOCK_SPACE + "return className == null || className.equals"
 				+ "(\"java.util.concurrent.ExecutorService\") ||\n");
 		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "className.equals"
-				+ "(\"com.squareup.okhttp.internal.DiskLruCache\");\n");
+				+ "(\"java.util.concurrent.Callable\") ||\n");
+		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "className.equals"
+				+ "(\"java.util.concurrent.ThreadPoolExecutor\") ||\n");
+		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "className.equals"
+				+ "(\"java.net.FileNameMap\") ||\n");
+		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "className.startsWith"
+				+ "(\"java.net.Cookie\") ||\n");
+		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "className.equals"
+				+ "(\"javax.net.ssl.SSLSocketFactory\") ||\n");
+		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "className.equals"
+				+ "(\"com.squareup.okhttp.internal.http.HttpEngine\") ||\n");
+		sb.append(INNER_INNER_INNER_INNER_BLOCK_SPACE + "className.startsWith"
+				+ "(\"java.io\");\n");
 		sb.append(METHOD_SPACE + "}\n");
 		
 		

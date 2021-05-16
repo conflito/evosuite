@@ -86,7 +86,6 @@ public class Scaffolding {
 		builder.append(getHeader(name, results, wasSecurityException));
 		builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
 		
-		builder.append(AllFieldsMethod.getSpecificMethod());
 		
 		builder.append(getFooter());
 
@@ -118,9 +117,9 @@ public class Scaffolding {
 			builder.append(";\n");
 		}
 		////////////////////////////////
-		builder.append("import java.lang.reflect.*;\n");
-		builder.append("import java.util.Set;\n");
-		builder.append("import java.util.HashSet;\n");
+//		builder.append("import java.lang.reflect.*;\n");
+//		builder.append("import java.util.Set;\n");
+//		builder.append("import java.util.HashSet;\n");
 		///////////////////////////////
 		builder.append("\n");
 
