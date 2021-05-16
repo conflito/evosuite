@@ -75,19 +75,6 @@ public class TestGeneration {
             Help.execute(options);
 			return results;
 		}
-		
-		
-		if(line.hasOption("criterion") 
-				&& line.getOptionValue("criterion").equals("methodcall")) {
-			if (!line.hasOption("cover_methods")) {
-				LoggingUtils.getEvoLogger().error("You need to specify the methods to cover with -cover_methods "
-						+ "to use the methodcall criterion");
-				return results;
-			}
-			else
-				methodsToCover = line.getOptionValue("cover_methods");
-		}
-
 
 		if (line.hasOption("class")) {
 			results.addAll(generateTests(strategy, line.getOptionValue("class"), javaOpts));
