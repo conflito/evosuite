@@ -1,11 +1,10 @@
 package org.evosuite.coverage.methodcall;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.statements.EntityWithParametersStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +16,15 @@ public class MethodCallGoal implements Serializable{
 	
 	private LineGoal lineGoal;
 	
-	public MethodCallGoal(String className, String methodName, Integer line) {
+	private List<LineGoal> alteredLinesGoals;
+	
+	public MethodCallGoal(String className, String methodName, int line) {
 		this.lineGoal = new LineGoal(className, methodName, line);
+		alteredLinesGoals = new ArrayList<>();
+	}
+	
+	public void addAlteredLineGoal(int line) {
+		alteredLinesGoals.add(new LineGoal(getClassName(), getMethodName(), line));
 	}
 	
 	public String getClassName() {
@@ -30,7 +36,13 @@ public class MethodCallGoal implements Serializable{
 	}
 	
 	public double distanceToGoal(ExecutionResult result) {
-		return lineGoal.distanceToGoal(result);
+		return lineGoal.distanceToGoal(result) + distanceToAlteredLines(result);
+	}
+	
+	private double distanceToAlteredLines(ExecutionResult result) {
+		return alteredLinesGoals.stream()
+					.mapToDouble(lg -> lg.distanceToGoal(result))
+					.sum();
 	}
 
 }

@@ -20,16 +20,39 @@ public class MethodCallFactory extends AbstractFitnessFactory<MethodCallTestFitn
 		List<MethodCallTestFitness> goals = new ArrayList<>();
 		
 		String targetMethodList = Properties.COVER_METHODS;
+		String alteredLinesList = Properties.COVER_LINES;
 		String regressionCP = Properties.REGRESSIONCP;
 		String secondRegressionCP = Properties.SECOND_REGRESSIONCP;
 		
-		if(!targetMethodList.equals("") && !regressionCP.equals("") &&
+		if(!targetMethodList.equals("") && 
+				!alteredLinesList.equals("") && 
+				!regressionCP.equals("") &&
 				!secondRegressionCP.equals("")) {
+			
 			String[] methods = targetMethodList.split(":");
+			String[] alteredLines = alteredLinesList.split(":");
+			
+			if(methods.length <= 0) {
+				logger.error("Invalid methods to cover");
+				return goals;
+			}
+			
+			if(alteredLines.length <= 0) {
+				logger.error("Invalid altered lines to cover");
+				return goals;
+			}
+			
+			if(methods.length != alteredLines.length) {
+				logger.error("Altered methods and altered lines have different sizes");
+				return goals;
+			}
 			
 			List<MethodCallGoal> callGoals = new ArrayList<>();
 			
-			for(String method: methods) {
+			for (int i = 0; i < methods.length; i++) {
+				String method = methods[i];
+				String methodAlteredLines = alteredLines[i];
+				
 				String className = Properties.getClassNameFromMethodFullName(method);
 				String methodName = Properties.getMethodNameFromMethodFullName(method);
 				
@@ -39,6 +62,8 @@ public class MethodCallFactory extends AbstractFitnessFactory<MethodCallTestFitn
 					int line = randomLine.get().intValue();
 					MethodCallGoal methodCallGoal = 
 							new MethodCallGoal(className, methodName, line);
+					
+					processAlteredLines(methodAlteredLines, methodCallGoal);
 
 					callGoals.add(methodCallGoal);
 				}
@@ -46,13 +71,34 @@ public class MethodCallFactory extends AbstractFitnessFactory<MethodCallTestFitn
 					logger.error("Failed to find a line for method " + 
 							methodName + " of class " + className);
 				}
-				
 			}
 			goals.add(new MethodCallTestFitness(callGoals));
 			
 		}
 
 		return goals;
+	}
+	
+	private void processAlteredLines(String methodAlteredLines, MethodCallGoal methodCallGoal) {
+		if(!methodAlteredLines.equals("")) {
+			for(String alteredLine: methodAlteredLines.split(";")) {
+				try {
+					int iLine = Integer.parseInt(alteredLine);
+					String className = methodCallGoal.getClassName();
+					String methodName = methodCallGoal.getMethodName();
+					
+					if(LinePool.getLines(className, methodName).contains(iLine))
+						methodCallGoal.addAlteredLineGoal(iLine);
+					else
+						logger.error("Method " + methodName + " of class " + className
+								+ " doesn't contain the line " + iLine);
+					
+				}
+				catch(NumberFormatException e) {
+					logger.error("Invalid format for altered lines to cover");
+				}
+			}
+		}
 	}
 
 }
