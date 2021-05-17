@@ -86,13 +86,14 @@ public class MethodCallFactory extends AbstractFitnessFactory<MethodCallTestFitn
 					int iLine = Integer.parseInt(alteredLine);
 					String className = methodCallGoal.getClassName();
 					String methodName = methodCallGoal.getMethodName();
-					
-					if(LinePool.getLines(className, methodName).contains(iLine))
-						methodCallGoal.addAlteredLineGoal(iLine);
-					else
-						logger.error("Method " + methodName + " of class " + className
-								+ " doesn't contain the line " + iLine);
-					
+
+					if(iLine != -1) {
+						if(LinePool.getLines(className, methodName).contains(iLine))
+							methodCallGoal.addAlteredLineGoal(iLine);
+						else
+							logger.warn("Method " + methodName + " of class " + className
+									+ " doesn't contain the line " + iLine);
+					}
 				}
 				catch(NumberFormatException e) {
 					logger.error("Invalid format for altered lines to cover");
