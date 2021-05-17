@@ -283,6 +283,7 @@ public class DependencyAnalysis {
 			if (callGraph != null && callGraph.isCalledClass(className)) {
 				return true;
 			}
+			return true;
 		}
 
 		return false;
@@ -315,6 +316,7 @@ public class DependencyAnalysis {
 				if(Properties.INSTRUMENT_LIBRARIES || DependencyAnalysis.isTargetProject(className))
 				return true;
 			}
+			return true;
 		}
 
 		return false;
