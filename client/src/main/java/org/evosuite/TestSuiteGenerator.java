@@ -235,7 +235,7 @@ public class TestSuiteGenerator {
 
 		TestSuiteChromosome testCases = generateTests();	
 
-		if(Properties.CRITERION[0] == Criterion.METHODCALL) {
+		if(Properties.isMethodCallCriterion()) {
 			double fitness = testCases.getFitness();
 			if(fitness > 0.0) {
 				testCases = new TestSuiteChromosome();
@@ -442,7 +442,7 @@ public class TestSuiteGenerator {
 			inliner.inline(testSuite);
 		}
 		
-		if(Properties.CRITERION[0] == Criterion.METHODCALL)
+		if(Properties.isMethodCallCriterion())
 			Properties.MINIMIZE = false;
 
 		if (Properties.MINIMIZE) {
@@ -482,7 +482,7 @@ public class TestSuiteGenerator {
 			ClientServices.track(RuntimeVariable.Minimized_Length, testSuite.totalLengthOfTestCases());
 		}
 		
-		if(Properties.CRITERION[0] == Criterion.METHODCALL)
+		if(Properties.isMethodCallCriterion())
 			injectAllFieldsMethod(testSuite);
 		
 		if (Properties.COVERAGE) {

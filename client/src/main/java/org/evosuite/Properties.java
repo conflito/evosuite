@@ -2516,6 +2516,10 @@ public class Properties {
 		return isRegression;
 	}
 	
+	public static boolean isMethodCallCriterion() {
+		return Properties.CRITERION[0] == Criterion.METHODCALL && !COVER_METHODS.equals("");
+	}
+	
 	public static boolean NOT_FOUND_FIRST_REGRESSION;
 	public static boolean NOT_FOUND_SECOND_REGRESSION;
 	

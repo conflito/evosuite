@@ -208,7 +208,7 @@ public class BytecodeInstrumentation {
 				cv = new AccessibleClassAdapter(cv, className);
 			}
 
-			if(Properties.CRITERION[0] == Criterion.METHODCALL)
+			if(Properties.isMethodCallCriterion())
 				cv = new HideSecondaryTargetMethods(cv, classNameWithDots);
 			
 			cv = new RemoveFinalClassAdapter(cv);
