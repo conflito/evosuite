@@ -16,6 +16,8 @@ public class AllFieldsCalculator {
 	static {
 		ignoreClasses = new HashSet<>();
 		ignoreFields = new HashSet<>();
+		
+		ignoreClasses.add("java.lang.Class");
 
 		ignoreClasses.add("java.util.concurrent");
 		ignoreClasses.add("java.io");
@@ -53,7 +55,7 @@ public class AllFieldsCalculator {
 	private static long allFieldsMethod(Object o, Set<Object> visited) throws Exception {
 		long result = 1;
 		final long prime = 7;
-		if(o != null && !visited.contains(o)) {
+		if(o != null && !visited.contains(o) && !ignoreClass(o.getClass())) {
 			visited.add(o);
 			if(validCanonicalName(o)) {
 				String className = o.getClass().getCanonicalName();
