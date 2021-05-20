@@ -274,6 +274,8 @@ public class AllFieldsCalculator {
 	 */
 	private static boolean ignoreClass(Class<?> clazz) {
 		String className = clazz.getCanonicalName();
+		if(className == null)
+			return true;
 		for(String s: ignoreClasses) {
 			if(className.startsWith(s) || className.equals(s))
 				return true;
