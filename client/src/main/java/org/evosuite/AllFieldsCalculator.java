@@ -25,9 +25,24 @@ public class AllFieldsCalculator {
 		ignoreClasses.add("java.net.Cookie");
 		ignoreClasses.add("java.net.FileNameMap");
 		ignoreClasses.add("java.net.Socket");
+		ignoreClasses.add("java.net.ServerSocket");
+		ignoreClasses.add("java.net.URI");
+		ignoreClasses.add("java.net.URL");
 		ignoreClasses.add("java.net.Proxy");
+		ignoreClasses.add("java.net.InetAddress");
+		//Includes CacheRequest and CacheResponse
+		ignoreClasses.add("java.net.Cache");
+		ignoreClasses.add("java.net.ResponseCache");
 		
 		ignoreClasses.add("javax.net.ssl.SSLSocketFactory");
+		
+		ignoreClasses.add("com.google.mockwebserver");
+		
+		//Anything mocked by EvoSuite
+		ignoreClasses.add("org.evosuite.runtime.mock");
+		
+		//Specific
+		ignoreClasses.add("com.squareup.okhttp.internal.http.HttpEngine");
 		
 		ignoreFields.add("mockitoInterceptor");
 	}
@@ -94,8 +109,6 @@ public class AllFieldsCalculator {
 				}
 			}
 		}
-		else if(o == null && !visited.contains(o))
-			result = prime;
 		else
 			result = 0;
 		return result;
