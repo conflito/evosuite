@@ -24,10 +24,11 @@ public class MethodCallFactory extends AbstractFitnessFactory<MethodCallTestFitn
 		String regressionCP = Properties.REGRESSIONCP;
 		String secondRegressionCP = Properties.SECOND_REGRESSIONCP;
 		
-		if(!targetMethodList.equals("") && 
-				!alteredLinesList.equals("") && 
+		if(!targetMethodList.equals("") &&  
 				!regressionCP.equals("") &&
 				!secondRegressionCP.equals("")) {
+			
+			boolean alteredLinesInserted = !alteredLinesList.equals("");
 			
 			String[] methods = targetMethodList.split(":");
 			String[] alteredLines = alteredLinesList.split(":");
@@ -37,12 +38,12 @@ public class MethodCallFactory extends AbstractFitnessFactory<MethodCallTestFitn
 				return goals;
 			}
 			
-			if(alteredLines.length <= 0) {
+			if(alteredLinesInserted && alteredLines.length <= 0) {
 				logger.error("Invalid altered lines to cover");
 				return goals;
 			}
 			
-			if(methods.length != alteredLines.length) {
+			if(alteredLinesInserted && methods.length != alteredLines.length) {
 				logger.error("Altered methods and altered lines have different sizes");
 				return goals;
 			}
@@ -51,7 +52,6 @@ public class MethodCallFactory extends AbstractFitnessFactory<MethodCallTestFitn
 			
 			for (int i = 0; i < methods.length; i++) {
 				String method = methods[i];
-				String methodAlteredLines = alteredLines[i];
 				
 				String className = Properties.getClassNameFromMethodFullName(method);
 				String methodName = Properties.getMethodNameFromMethodFullName(method);
@@ -63,7 +63,10 @@ public class MethodCallFactory extends AbstractFitnessFactory<MethodCallTestFitn
 					MethodCallGoal methodCallGoal = 
 							new MethodCallGoal(className, methodName, line);
 					
-					processAlteredLines(methodAlteredLines, methodCallGoal);
+					if(alteredLinesInserted) {
+						String methodAlteredLines = alteredLines[i];
+						processAlteredLines(methodAlteredLines, methodCallGoal);
+					}
 
 					callGoals.add(methodCallGoal);
 				}
