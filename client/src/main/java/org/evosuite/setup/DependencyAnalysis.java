@@ -266,6 +266,9 @@ public class DependencyAnalysis {
 		if (isTargetClassName(className))
 			return true;
 
+		if(Properties.isMethodCallCriterion())
+			return true;
+		
 		if (inheritanceTree == null) {
 			return false;
 		}
@@ -283,7 +286,6 @@ public class DependencyAnalysis {
 			if (callGraph != null && callGraph.isCalledClass(className)) {
 				return true;
 			}
-			return true;
 		}
 
 		return false;
@@ -301,6 +303,9 @@ public class DependencyAnalysis {
 		if (isTargetClassName(className))
 			return true;
 
+		if(Properties.isMethodCallCriterion())
+			return true;
+
 		// Also analyze if it is a superclass and instrument_parent = true
 		if (Properties.INSTRUMENT_PARENT) {
 			if (inheritanceTree.getSuperclasses(Properties.TARGET_CLASS).contains(className))
@@ -316,7 +321,6 @@ public class DependencyAnalysis {
 				if(Properties.INSTRUMENT_LIBRARIES || DependencyAnalysis.isTargetProject(className))
 				return true;
 			}
-			return true;
 		}
 
 		return false;
