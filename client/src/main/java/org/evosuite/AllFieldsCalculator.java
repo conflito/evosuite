@@ -43,6 +43,7 @@ public class AllFieldsCalculator {
 		
 		//Specific
 		ignoreClasses.add("com.squareup.okhttp.internal.http.HttpEngine");
+		ignoreClasses.add("com.squareup.okhttp.ConnectionPool");
 		
 		ignoreFields.add("mockitoInterceptor");
 	}
