@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.DualRegressionController;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
@@ -193,25 +194,25 @@ public class InstrumentingClassLoader extends ClassLoader {
 		try {	
 			if(isRegression) {
 				if(isSecondRegression) {
-					Properties.setSecondRegression(true);
+					DualRegressionController.getInstance().setAnalyzingSecondRegression(true);
 					is = ResourceList.getInstance(TestGenerationContext.getInstance()
 							.getSecondRegressionClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
 					
 					boolean hasClass = ResourceList.getInstance(TestGenerationContext.getInstance()
 							.getSecondRegressionClassLoaderForSUT()).hasClass(fullyQualifiedTargetClass);
 					if(!hasClass && Properties.TARGET_CLASS.equals(fullyQualifiedTargetClass))
-						Properties.setNotFound();
-					Properties.setSecondRegression(false);
+						DualRegressionController.getInstance().setNotFound();
+					DualRegressionController.getInstance().setAnalyzingSecondRegression(false);
 				}
 				else {
-					Properties.setFirstRegression(true);
+					DualRegressionController.getInstance().setAnalyzingFirstRegression(true);
 					is = ResourceList.getInstance(TestGenerationContext.getInstance()
 							.getRegressionClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
 					boolean hasClass = ResourceList.getInstance(TestGenerationContext.getInstance()
 							.getRegressionClassLoaderForSUT()).hasClass(fullyQualifiedTargetClass);
 					if(!hasClass && Properties.TARGET_CLASS.equals(fullyQualifiedTargetClass))
-						Properties.setNotFound();
-					Properties.setFirstRegression(false);
+						DualRegressionController.getInstance().setNotFound();
+					DualRegressionController.getInstance().setAnalyzingFirstRegression(false);
 				}
 			}
 			else {

@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.evosuite.DualRegressionController;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
@@ -404,11 +405,11 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 					}
 				}
 			}
-			Properties.setNotFound();
+			DualRegressionController.getInstance().setNotFound();
 		} catch (ClassNotFoundException e) {
-			Properties.setNotFound();
+			DualRegressionController.getInstance().setNotFound();
 		} catch (SecurityException e) {
-			Properties.setNotFound();
+			DualRegressionController.getInstance().setNotFound();
 		}
 	}
 

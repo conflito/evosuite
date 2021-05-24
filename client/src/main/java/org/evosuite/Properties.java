@@ -2520,26 +2520,6 @@ public class Properties {
 		return Properties.CRITERION[0] == Criterion.METHODCALL && !COVER_METHODS.equals("");
 	}
 	
-	public static boolean NOT_FOUND_FIRST_REGRESSION;
-	public static boolean NOT_FOUND_SECOND_REGRESSION;
-	
-	public static boolean FIRST_REGRESSION;
-	public static boolean SECOND_REGRESSION;
-	
-	public static void setNotFound() {
-		if(FIRST_REGRESSION)
-			NOT_FOUND_FIRST_REGRESSION = true;
-		if(SECOND_REGRESSION)
-			NOT_FOUND_SECOND_REGRESSION = true;
-	}
-	
-	public static void setFirstRegression(boolean b) {
-		FIRST_REGRESSION = b;
-	}
-	
-	public static void setSecondRegression(boolean b) {
-		SECOND_REGRESSION = b;
-	}
 	
 	public static final String ALL_FIELDS_CALCULATOR_NAME = "org.evosuite.AllFieldsCalculator";
 	public static final String ALL_FIELDS_METHOD_NAME = "allFieldsMethod";

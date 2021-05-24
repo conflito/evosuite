@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.evosuite.DualRegressionController;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.Chromosome;
@@ -38,7 +39,6 @@ public class MultiTestChromosome extends TestChromosome{
 
 	private boolean reachedMethods;
 	
-//	private boolean updatedLoadersOnce;
 	private boolean notInFirstRegression;
 	private boolean notInSecondRegression;
 
@@ -163,10 +163,9 @@ public class MultiTestChromosome extends TestChromosome{
 
 		c.objectDistance = this.objectDistance;
 		c.reachedMethods = this.reachedMethods;
-//		c.updatedLoadersOnce = this.updatedLoadersOnce;
 		c.notInFirstRegression = this.notInFirstRegression;
 		c.notInSecondRegression = this.notInSecondRegression;
-		
+  
 		if(theSameTestForTheOtherClassLoader != null)
 			c.theSameTestForTheOtherClassLoader = 
 			(TestChromosome) theSameTestForTheOtherClassLoader.clone();
@@ -174,36 +173,33 @@ public class MultiTestChromosome extends TestChromosome{
 		if(theSameTestForTheSecondClassLoader != null)
 			c.theSameTestForTheSecondClassLoader =
 			(TestChromosome) theSameTestForTheSecondClassLoader.clone();
-		
-		
+  
+  
 		return c;
 	}
 
 	protected void updateClassloader() {
 		if(super.isChanged()) {
-			Properties.setFirstRegression(true);
+			DualRegressionController.getInstance().setAnalyzingFirstRegression(true);
 			
 			theSameTestForTheOtherClassLoader = (TestChromosome) super.clone();
 			((DefaultTestCase) theSameTestForTheOtherClassLoader.getTestCase())
 			.changeClassLoader(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
 
-			Properties.setFirstRegression(false);
-			Properties.setSecondRegression(true);
+			DualRegressionController.getInstance().setAnalyzingFirstRegression(false);
+			DualRegressionController.getInstance().setAnalyzingSecondRegression(true);
 			
 			theSameTestForTheSecondClassLoader = (TestChromosome) super.clone();
 			((DefaultTestCase) theSameTestForTheSecondClassLoader.getTestCase())
 			.changeClassLoader(TestGenerationContext.getInstance().getSecondRegressionClassLoaderForSUT());
 			
-			Properties.setSecondRegression(false);
+			DualRegressionController.getInstance().setAnalyzingSecondRegression(false);
 			
-//			if(!updatedLoadersOnce) {
-				if(Properties.NOT_FOUND_FIRST_REGRESSION)
-					this.notInFirstRegression = true;
-				else if(Properties.NOT_FOUND_SECOND_REGRESSION)
-					this.notInSecondRegression = true;
-//			}
-			
-//			updatedLoadersOnce = true;
+			if(DualRegressionController.getInstance().notFoundInFirstRegression())
+				this.notInFirstRegression = true;
+			else if(DualRegressionController.getInstance().notFoundInSecondRegression())
+				this.notInSecondRegression = true;
+
 		}
 	}
 
