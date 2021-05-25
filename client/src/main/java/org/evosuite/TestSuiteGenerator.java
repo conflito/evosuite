@@ -275,7 +275,7 @@ public class TestSuiteGenerator {
 			List<VariableReference> objects = 
 					tc.getObjects(upperBound);
 			for(VariableReference o: objects) {
-				if(!o.isPrimitive()) {
+				if(!o.isPrimitive() && !o.isEnum() && !o.isFieldReference()) {
 					List<VariableReference> parameters = new ArrayList<>();
 					parameters.add(o);
 					MethodStatement ms = new MethodStatement(tc, m, null, parameters);
