@@ -1370,13 +1370,13 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 								&& !stack.peek().methodName.equals(""));
 					} else {
 
-						logger.warn("Popping method " + stack.peek().methodName + " because we were looking for "
+						logger.info("Popping method " + stack.peek().methodName + " because we were looking for "
 								+ methodName);
-						logger.warn("Current stack: " + stack);
+						logger.info("Current stack: " + stack);
 						finishedCalls.add(stack.pop());
 					}
 					if (stack.isEmpty()) {
-						logger.warn("Method stack is empty: " + className + "." + methodName + " - l" + line); // TODO
+						logger.info("Method stack is empty: " + className + "." + methodName + " - l" + line); // TODO
 																												// switch
 																												// back
 						empty = true;
