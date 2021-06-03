@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.evosuite.DualRegressionController;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.runtime.Runtime;
@@ -211,7 +212,11 @@ public class TestRunnable implements InterfaceTestRunnable {
 			}
 			
 			executeStatements(result, out, num);
-		} catch (ThreadDeath e) {// can't stop these guys
+		} 
+		catch(NoClassDefFoundError e) {
+			DualRegressionController.getInstance().setNotFound();
+		}
+		catch (ThreadDeath e) {// can't stop these guys
 			logger.info("Found error in " + test.toCode(), e);
 			throw e; // this needs to be propagated
 		} catch (TimeoutException | TestCaseExecutor.TimeoutExceeded e) {
