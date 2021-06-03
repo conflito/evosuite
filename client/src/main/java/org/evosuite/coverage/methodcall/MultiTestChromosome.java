@@ -74,25 +74,31 @@ public class MultiTestChromosome extends TestChromosome{
 		result = TestCaseExecutor.getInstance().execute(this.test);
 		observer.setRegressionFlag(true);
 		try {
+			DualRegressionController.getInstance().setAnalyzingFirstRegression(true);
 			otherResult = 
 				TestCaseExecutor.getInstance().execute(theSameTestForTheOtherClassLoader.getTestCase());
+			DualRegressionController.getInstance().setAnalyzingFirstRegression(false);
 			compilesInRegression = true;
 		}
 		catch(Exception e) {
 			if(Properties.SHOW_FF)
 				logger.warn("No compile in regression");
 			compilesInRegression = false;
+			DualRegressionController.getInstance().setAnalyzingFirstRegression(false);
 		}
 		observer.setSecondRegressionFlag(true);
 		try {
+			DualRegressionController.getInstance().setAnalyzingSecondRegression(true);
 			secondOtherResult =
 				TestCaseExecutor.getInstance().execute(theSameTestForTheSecondClassLoader.getTestCase());
 			compilesInSecondRegression = true;
+			DualRegressionController.getInstance().setAnalyzingSecondRegression(false);
 		}
 		catch(Exception e) {
 			if(Properties.SHOW_FF)
 				logger.warn("No compile in second regression");
 			compilesInSecondRegression = false;
+			DualRegressionController.getInstance().setAnalyzingSecondRegression(false);
 		}
 		observer.setRegressionFlag(false);
 		observer.setSecondRegressionFlag(false);
@@ -166,14 +172,22 @@ public class MultiTestChromosome extends TestChromosome{
 		c.notInFirstRegression = this.notInFirstRegression;
 		c.notInSecondRegression = this.notInSecondRegression;
   
-		if(theSameTestForTheOtherClassLoader != null)
-			c.theSameTestForTheOtherClassLoader = 
-			(TestChromosome) theSameTestForTheOtherClassLoader.clone();
-
-		if(theSameTestForTheSecondClassLoader != null)
-			c.theSameTestForTheSecondClassLoader =
-			(TestChromosome) theSameTestForTheSecondClassLoader.clone();
-  
+		try {
+			if(theSameTestForTheOtherClassLoader != null)
+				c.theSameTestForTheOtherClassLoader = 
+				(TestChromosome) theSameTestForTheOtherClassLoader.clone();
+		}
+		catch(Exception e) {
+			logger.warn("Different object structure");
+		}
+		try {
+			if(theSameTestForTheSecondClassLoader != null)
+				c.theSameTestForTheSecondClassLoader =
+				(TestChromosome) theSameTestForTheSecondClassLoader.clone();
+		}
+		catch(Exception e) {
+			logger.warn("Different object structure");
+		}
   
 		return c;
 	}
