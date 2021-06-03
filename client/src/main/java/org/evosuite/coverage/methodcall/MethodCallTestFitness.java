@@ -21,6 +21,9 @@ public class MethodCallTestFitness extends TestFitnessFunction {
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		double fitness = 1.0;
 
+		if(result == null)
+			return fitness;
+		
 		if(!(individual instanceof MultiTestChromosome)) {
 			return individual.getFitness();
 		}
