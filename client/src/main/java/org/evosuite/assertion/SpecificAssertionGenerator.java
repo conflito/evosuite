@@ -21,7 +21,7 @@ public class SpecificAssertionGenerator extends AssertionGenerator {
 		for (int i = 0; i < test.size(); i++) {
 			Statement s = test.getStatement(i);
 			if(isAllFieldsMethod(s))
-				filterAssertions(s, true);
+				filterAssertions(s);
 			else {
 				handleOthers(s, test);
 			}
@@ -31,14 +31,14 @@ public class SpecificAssertionGenerator extends AssertionGenerator {
 	
 	private void handleOthers(Statement s, TestCase test) {
 		if(isRelevant(s, test)) {
-			filterAssertions(s, true);
+			filterAssertions(s);
 		}
 		else {
 			s.removeAssertions();
 		}
 	}
 
-	private void filterAssertions(Statement s, boolean justOne) {
+	private void filterAssertions(Statement s) {
 		VariableReference returnVal = s.getReturnValue();
 		
 		if(s.hasAssertions()) {
@@ -48,7 +48,7 @@ public class SpecificAssertionGenerator extends AssertionGenerator {
 				Assertion a = assertions[j];
 				if(a != null) {
 					Set<VariableReference> referenced = a.getReferencedVariables();
-					if((justOne && referenced.size() != 1) || !referenced.contains(returnVal)) {
+					if(referenced.size() != 1 || !referenced.contains(returnVal)) {
 						s.removeAssertion(a);
 					}
 				}
