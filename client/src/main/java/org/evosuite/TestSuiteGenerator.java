@@ -268,19 +268,37 @@ public class TestSuiteGenerator {
 	
 	private void injectAllFieldsMethod(TestSuiteChromosome testSuite) {
 		GenericMethod m = new GenericMethod(Properties.INSTRUMENTED_METHOD, Properties.INSTRUMENTED_CLASS);
-
-		for(TestCase tc: testSuite.getTests()) {
+		
+		List<TestChromosome> chromosomes = testSuite.getTestChromosomes();
+		
+		for(int i = 0; i < chromosomes.size(); i++) {
+			TestChromosome chromosome = chromosomes.get(i);
+			TestCase tc = chromosome.getTestCase();
 			int upperBound = tc.size();
+			List<VariableReference> objects = tc.getObjects(upperBound);
+			Integer pos = chromosome.getLastExecutionResult()
+					.getFirstPositionOfThrownException();
 			
-			List<VariableReference> objects = 
-					tc.getObjects(upperBound);
-			for(VariableReference o: objects) {
-				if(!o.isPrimitive() && !o.isEnum() && !o.isFieldReference()) {
-					List<VariableReference> parameters = new ArrayList<>();
-					parameters.add(o);
-					MethodStatement ms = new MethodStatement(tc, m, null, parameters);
-					
-					tc.addStatement(ms);
+			if(pos == null) {
+				for(VariableReference o: objects) {
+					if(!o.isPrimitive() && !o.isEnum() && !o.isFieldReference()) {
+						List<VariableReference> parameters = new ArrayList<>();
+						parameters.add(o);
+						MethodStatement ms = new MethodStatement(tc, m, null, parameters);
+						tc.addStatement(ms);
+					}
+				}
+			}
+			else {
+				objects = tc.getObjects(pos.intValue() - 1);
+				int next = pos.intValue() - 1;			
+				for(VariableReference o: objects) {
+					if(!o.isPrimitive() && !o.isEnum() && !o.isFieldReference()) {
+						List<VariableReference> parameters = new ArrayList<>();
+						parameters.add(o);
+						MethodStatement ms = new MethodStatement(tc, m, null, parameters);
+						tc.addStatement(ms, next);
+					}
 				}
 			}
 		}
