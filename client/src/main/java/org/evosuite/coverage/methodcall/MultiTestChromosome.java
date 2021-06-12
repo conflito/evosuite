@@ -80,7 +80,7 @@ public class MultiTestChromosome extends TestChromosome{
 			DualRegressionController.getInstance().setAnalyzingFirstRegression(false);
 			compilesInRegression = true;
 		}
-		catch(Exception e) {
+		catch(Throwable e ) {
 			if(Properties.SHOW_FF)
 				logger.warn("No compile in regression");
 			compilesInRegression = false;
@@ -94,7 +94,7 @@ public class MultiTestChromosome extends TestChromosome{
 			compilesInSecondRegression = true;
 			DualRegressionController.getInstance().setAnalyzingSecondRegression(false);
 		}
-		catch(Exception e) {
+		catch(Throwable e) {
 			if(Properties.SHOW_FF)
 				logger.warn("No compile in second regression");
 			compilesInSecondRegression = false;
@@ -196,17 +196,26 @@ public class MultiTestChromosome extends TestChromosome{
 		if(super.isChanged()) {
 			DualRegressionController.getInstance().setAnalyzingFirstRegression(true);
 			
-			theSameTestForTheOtherClassLoader = (TestChromosome) super.clone();
-			((DefaultTestCase) theSameTestForTheOtherClassLoader.getTestCase())
-			.changeClassLoader(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
-
+			try {
+				theSameTestForTheOtherClassLoader = (TestChromosome) super.clone();
+				((DefaultTestCase) theSameTestForTheOtherClassLoader.getTestCase())
+				.changeClassLoader(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
+			}
+			catch(Exception e) {
+				this.notInFirstRegression = true;
+			}
+			
 			DualRegressionController.getInstance().setAnalyzingFirstRegression(false);
 			DualRegressionController.getInstance().setAnalyzingSecondRegression(true);
 			
-			theSameTestForTheSecondClassLoader = (TestChromosome) super.clone();
-			((DefaultTestCase) theSameTestForTheSecondClassLoader.getTestCase())
-			.changeClassLoader(TestGenerationContext.getInstance().getSecondRegressionClassLoaderForSUT());
-			
+			try {
+				theSameTestForTheSecondClassLoader = (TestChromosome) super.clone();
+				((DefaultTestCase) theSameTestForTheSecondClassLoader.getTestCase())
+				.changeClassLoader(TestGenerationContext.getInstance().getSecondRegressionClassLoaderForSUT());
+			}
+			catch(Exception e) {
+				this.notInSecondRegression = true;
+			}
 			DualRegressionController.getInstance().setAnalyzingSecondRegression(false);
 			
 			if(DualRegressionController.getInstance().notFoundInFirstRegression())
