@@ -291,8 +291,8 @@ public class TestSuiteGenerator {
 			}
 			else {
 				try {
-					objects = tc.getObjects(pos.intValue() - 1);
-					int next = pos.intValue() - 1;			
+					objects = tc.getObjects(pos.intValue());
+					int next = pos.intValue();			
 					for(VariableReference o: objects) {
 						if(!o.isPrimitive() && !o.isEnum() && !o.isFieldReference()) {
 							List<VariableReference> parameters = new ArrayList<>();
@@ -303,7 +303,7 @@ public class TestSuiteGenerator {
 					}
 				}
 				catch(Exception e) {
-					logger.warn("Something went wront inject allFieldsMethod. Skipping this part.");
+					logger.warn("Something went wrong injecting allFieldsMethod. Skipping this part.");
 				}
 				
 			}
