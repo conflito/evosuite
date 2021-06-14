@@ -266,7 +266,7 @@ public class DependencyAnalysis {
 		if (isTargetClassName(className))
 			return true;
 
-		if(Properties.isMethodCallCriterion())
+		if(!Properties.NOT_ALL &&Properties.isMethodCallCriterion())
 			return true;
 		
 		if (inheritanceTree == null) {
@@ -303,7 +303,7 @@ public class DependencyAnalysis {
 		if (isTargetClassName(className))
 			return true;
 
-		if(Properties.isMethodCallCriterion())
+		if(!Properties.NOT_ALL && Properties.isMethodCallCriterion())
 			return true;
 
 		// Also analyze if it is a superclass and instrument_parent = true

@@ -1459,6 +1459,9 @@ public class Properties {
 	@Parameter(key = "cover_methods", group = "Runtime", description = "Methods to cover")
 	public static String COVER_METHODS = "";
 	
+	@Parameter(key = "not_all", group = "Runtime", description = "If it is to instrument everything")
+	public static boolean NOT_ALL = false;
+	
 	/** Methods to cover in the test */
 	@Parameter(key = "cover_lines", group = "Runtime", description = "Altered lines to cover")
 	public static String COVER_LINES = "";
