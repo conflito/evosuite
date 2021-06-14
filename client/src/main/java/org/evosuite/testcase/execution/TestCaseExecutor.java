@@ -378,7 +378,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			System.setOut(systemOut);
 			System.setErr(systemErr);
 
-			logger.error("ExecutionException (this is likely a serious error in the framework)", e1);
+			//logger.error("ExecutionException (this is likely a serious error in the framework)", e1);
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.setThrownExceptions(callable.getExceptionsThrown());
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
