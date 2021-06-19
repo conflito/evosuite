@@ -291,8 +291,8 @@ public class TestSuiteGenerator {
 			}
 			else {
 				try {
-					objects = tc.getObjects(pos.intValue());
-					int next = pos.intValue();			
+					objects = tc.getObjects(pos.intValue() - 1);
+					int next = pos.intValue() - 1;
 					for(VariableReference o: objects) {
 						if(!o.isPrimitive() && !o.isEnum() && !o.isFieldReference()) {
 							List<VariableReference> parameters = new ArrayList<>();
