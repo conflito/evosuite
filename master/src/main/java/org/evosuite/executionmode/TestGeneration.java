@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -37,7 +37,7 @@ import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.runtime.util.JarPathing;
 import org.evosuite.runtime.util.JavaExecCmdUtil;
 import org.evosuite.statistics.SearchStatistics;
-import org.evosuite.utils.ExternalProcessHandler;
+import org.evosuite.utils.ExternalProcessGroupHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class TestGeneration {
 
@@ -57,12 +58,12 @@ public class TestGeneration {
 			CommandLine line) {
 		
 		Strategy strategy = getChosenStrategy(javaOpts, line);
-		
+
 		if (strategy == null) {
 			strategy = Strategy.EVOSUITE;
 		} 
 
-		List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
+        List<List<TestGenerationResult>> results = new ArrayList<>();
 
 		if(line.getOptions().length == 0) {
             Help.execute(options);
@@ -75,6 +76,7 @@ public class TestGeneration {
             Help.execute(options);
 			return results;
 		}
+
 
 		if (line.hasOption("class")) {
 			results.addAll(generateTests(strategy, line.getOptionValue("class"), javaOpts));
@@ -97,8 +99,8 @@ public class TestGeneration {
 
 	private static List<List<TestGenerationResult>> generateTestsLegacy(Properties.Strategy strategy,
 	        List<String> args) {
-	    List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
-		
+        List<List<TestGenerationResult>> results = new ArrayList<>();
+
 		ClassPathHandler.getInstance().getTargetProjectClasspath();
 		LoggingUtils.getEvoLogger().info("* Using .task files in "
 		                                         + Properties.OUTPUT_DIR
@@ -134,7 +136,10 @@ public class TestGeneration {
 		} else if(javaOpts.contains("-Dstrategy="+Strategy.NOVELTY.name())) {
 			// TODO: Find a better way to integrate this
 			strategy = Strategy.NOVELTY;
-		} else if (line.hasOption("generateTests")) {
+		} else if(javaOpts.contains("-Dstrategy="+Strategy.MAP_ELITES.name())) {
+          // TODO: Find a better way to integrate this
+          strategy = Strategy.MAP_ELITES;
+        } else if (line.hasOption("generateTests")) {
 			strategy = Strategy.ONEBRANCH;
 		} else if (line.hasOption("generateSuite")) {
 			strategy = Strategy.EVOSUITE;
@@ -156,11 +161,11 @@ public class TestGeneration {
 	
 	private static List<List<TestGenerationResult>> generateTestsPrefix(Properties.Strategy strategy, String prefix,
 	        List<String> args) {
-	    List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
-		
+        List<List<TestGenerationResult>> results = new ArrayList<>();
+
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
-		Set<String> classes = new HashSet<String>();
-		
+        Set<String> classes = new HashSet<>();
+
 		for (String classPathElement : cp.split(File.pathSeparator)) {
 			classes.addAll(ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(classPathElement, prefix, false));
 			try {
@@ -215,7 +220,8 @@ public class TestGeneration {
 		LoggingUtils.getEvoLogger().info("* Going to generate test cases for class: "+target);
 		
 		if (!findTargetClass(target)) {
-		    return Arrays.asList(Arrays.asList(new TestGenerationResult[]{TestGenerationResultBuilder.buildErrorResult("Could not find target class") }));
+			final TestGenerationResult result = TestGenerationResultBuilder.buildErrorResult("Could not find target class");
+			return Collections.singletonList(Collections.singletonList(result));
 		}
 
 
@@ -226,8 +232,14 @@ public class TestGeneration {
 			                + " because it belongs to one of the packages EvoSuite cannot currently handle");
 		}
 
+        final String DISABLE_ASSERTIONS_EVO = "-da:"+PackageInfo.getEvoSuitePackage()+"...";
+        final String ENABLE_ASSERTIONS_EVO = "-ea:"+PackageInfo.getEvoSuitePackage()+"...";
+        final String DISABLE_ASSERTIONS_SUT = "-da:" + Properties.PROJECT_PREFIX + "...";
+        final String ENABLE_ASSERTIONS_SUT = "-ea:" + Properties.PROJECT_PREFIX + "...";
+
 		List<String> cmdLine = new ArrayList<>();
 		cmdLine.add(JavaExecCmdUtil.getJavaBinExecutablePath(true)/*EvoSuite.JAVA_CMD*/);
+        List<String[]> processArgs = new ArrayList<>();
 
 		handleClassPath(cmdLine);
 
@@ -235,15 +247,21 @@ public class TestGeneration {
 			cmdLine.add("-Dspawn_process_manager_port="+Properties.SPAWN_PROCESS_MANAGER_PORT);
 		}
 
-		ExternalProcessHandler handler = new ExternalProcessHandler();
+        if (Properties.NUM_PARALLEL_CLIENTS < 1) {
+            Properties.NUM_PARALLEL_CLIENTS = 1;
+        }
+
+        LoggingUtils[] logServer = new LoggingUtils[Properties.NUM_PARALLEL_CLIENTS];
+		ExternalProcessGroupHandler handler = new ExternalProcessGroupHandler(Properties.NUM_PARALLEL_CLIENTS);
 		int port = handler.openServer();
 		if (port <= 0) {
 			throw new RuntimeException("Not possible to start RMI service");
 		}
+        handler.setBaseDir(EvoSuite.base_dir_path);
 
 		cmdLine.add("-Dprocess_communication_port=" + port);
 		cmdLine.add("-Dinline=true");
-		if(Properties.HEADLESS_MODE == true) {
+        if (Properties.HEADLESS_MODE) {
 			cmdLine.add("-Djava.awt.headless=true");
 		}
 		cmdLine.add("-Dlogback.configurationFile="+LoggingUtils.getLogbackFileName());
@@ -269,17 +287,6 @@ public class TestGeneration {
 		
 		cmdLine.add("-Djava.library.path=lib");
 		// cmdLine.add("-Dminimize_values=true");
-
-		if (Properties.DEBUG) {
-			// enabling debugging mode to e.g. connect the eclipse remote debugger to the given port
-			cmdLine.add("-Ddebug=true");
-			cmdLine.add("-Xdebug");
-			cmdLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address="
-			        + Properties.PORT);
-			LoggingUtils.getEvoLogger().info("* Waiting for remote debugger to connect on port "
-			                                         + Properties.PORT + "..."); // TODO find the right
-			// place for this
-		}
 
 		if (!Properties.PROFILE.isEmpty()) {
 			// enabling debugging mode to e.g. connect the eclipse remote debugger to the given port
@@ -332,13 +339,36 @@ public class TestGeneration {
 			break;
 		case MOSUITE:
 			cmdLine.add("-Dstrategy=MOSuite");
+
+			// Set up defaults for MOSA if not specified by user
+			boolean algorithmSet = false;
+			boolean selectionSet = false;
+			for (String arg : args) {
+				if (arg.startsWith("-Dalgorithm")) {
+					algorithmSet = true;
+				}
+				if (arg.startsWith("-Dselection_function")) {
+					selectionSet = true;
+				}
+			}
+
+			if(!selectionSet) {
+				cmdLine.add("-Dselection_function=RANK_CROWD_DISTANCE_TOURNAMENT");
+			}
+
+			if(!algorithmSet) {
+				cmdLine.add("-Dalgorithm=MOSA");
+			}
 			break;
 		case DSE:
-			cmdLine.add("-Dstrategy=Dynamic_Symbolic_Execution");
+			cmdLine.add("-Dstrategy=DSE");
 			break;
 		case NOVELTY:
 			cmdLine.add("-Dstrategy=Novelty");
 			break;
+		case MAP_ELITES:
+		  cmdLine.add("-Dstrategy=MAP_ELITES");
+          break;
 		default:
 			throw new RuntimeException("Unsupported strategy: " + strategy);
 		}
@@ -349,7 +379,14 @@ public class TestGeneration {
 			cmdLine.add("-DPROJECT_PREFIX=" + Properties.PROJECT_PREFIX);
 		}
 
-		cmdLine.add(ClientProcess.class.getName());
+        for (String entry : ClassPathHandler.getInstance().getTargetProjectClasspath().split(File.pathSeparator)) {
+            try {
+                ClassPathHacker.addFile(entry);
+            } catch (IOException e) {
+                LoggingUtils.getEvoLogger().info("* Error while adding classpath entry: "
+                        + entry);
+            }
+        }
 
 		/*
 		 * TODO: here we start the client with several properties that are set through -D. These properties are not visible to the master process (ie
@@ -361,112 +398,119 @@ public class TestGeneration {
 		if(methodsToCover != null)
 			Properties.COVER_METHODS = methodsToCover;
 
-		/*
-		 *  FIXME: refactor, and double-check if indeed correct
-		 * 
-		 * The use of "assertions" in the client is pretty tricky, as those properties need to be transformed into JVM options before starting the
-		 * client. Furthermore, the properties in the property file might be overwritten from the commands coming from shell
-		 */
+        for (int i = 0; i < Properties.NUM_PARALLEL_CLIENTS; i++) {
+            List<String> cmdLineClone = new ArrayList<>(cmdLine);
 
-		String definedEAforClient = null;
-		String definedEAforSUT = null;
+            if (i == 0 && Properties.DEBUG) {
+                // enabling debugging mode to for Client-0 e.g. connect the eclipse remote debugger to the given port
+                cmdLineClone.add("-Ddebug=true");
+                cmdLineClone.add("-Xdebug");
+                cmdLineClone.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address="
+                        + Properties.PORT);
+                LoggingUtils.getEvoLogger().info("* Waiting for remote debugger to connect on port "
+                        + Properties.PORT + "...");
+            }
 
-		final String DISABLE_ASSERTIONS_EVO = "-da:"+PackageInfo.getEvoSuitePackage()+"...";
-		final String ENABLE_ASSERTIONS_EVO = "-ea:"+PackageInfo.getEvoSuitePackage()+"...";
-		final String DISABLE_ASSERTIONS_SUT = "-da:" + Properties.PROJECT_PREFIX + "...";
-		final String ENABLE_ASSERTIONS_SUT = "-ea:" + Properties.PROJECT_PREFIX + "...";
+            cmdLineClone.add(ClientProcess.class.getName());
+            
+            if (Properties.NUM_PARALLEL_CLIENTS == 1) {
+                cmdLineClone.add(ClientProcess.DEFAULT_CLIENT_NAME); //to keep functionality for non parallel runs
+            } else {
+                cmdLineClone.add(ClientProcess.CLIENT_PREFIX + i);
+            }
 
-		for (String s : cmdLine) {
-			// first check client
-			if (s.startsWith("-Denable_asserts_for_evosuite")) {
-				if (s.endsWith("false")) {
-					definedEAforClient = DISABLE_ASSERTIONS_EVO;
-				} else if (s.endsWith("true")) {
-					definedEAforClient = ENABLE_ASSERTIONS_EVO;
-				}
-			}
-			// then check SUT
-			if (s.startsWith("-Denable_asserts_for_sut")) {
-				if (s.endsWith("false")) {
-					definedEAforSUT = DISABLE_ASSERTIONS_SUT;
-				} else if (s.endsWith("true")) {
-					definedEAforSUT = ENABLE_ASSERTIONS_SUT;
-				}
-			}
-		}
+            /*
+             *  FIXME: refactor, and double-check if indeed correct
+             *
+             * The use of "assertions" in the client is pretty tricky, as those properties need to be transformed into JVM options before starting the
+             * client. Furthermore, the properties in the property file might be overwritten from the commands coming from shell
+             */
 
-		/*
-		 * the assertions might not be defined in the command line, but they might be in the property file, or just use default values. NOTE: if those
-		 * are defined in the command line, then they overwrite whatever we had in the conf file
-		 */
+            String definedEAforClient = null;
+            String definedEAforSUT = null;
 
-		if (definedEAforSUT == null) {
-			if (Properties.ENABLE_ASSERTS_FOR_SUT) {
-				definedEAforSUT = ENABLE_ASSERTIONS_SUT;
-			} else {
-				definedEAforSUT = DISABLE_ASSERTIONS_SUT;
-			}
-		}
+            for (String s : cmdLineClone) {
+                // first check client
+                if (s.startsWith("-Denable_asserts_for_evosuite")) {
+                    if (s.endsWith("false")) {
+                        definedEAforClient = DISABLE_ASSERTIONS_EVO;
+                    } else if (s.endsWith("true")) {
+                        definedEAforClient = ENABLE_ASSERTIONS_EVO;
+                    }
+                }
+                // then check SUT
+                if (s.startsWith("-Denable_asserts_for_sut")) {
+                    if (s.endsWith("false")) {
+                        definedEAforSUT = DISABLE_ASSERTIONS_SUT;
+                    } else if (s.endsWith("true")) {
+                        definedEAforSUT = ENABLE_ASSERTIONS_SUT;
+                    }
+                }
+            }
 
-		if (definedEAforClient == null) {
-			if (Properties.ENABLE_ASSERTS_FOR_EVOSUITE) {
-				definedEAforClient = ENABLE_ASSERTIONS_EVO;
-			} else {
-				definedEAforClient = DISABLE_ASSERTIONS_EVO;
-			}
-		}
+            /*
+             * the assertions might not be defined in the command line, but they might be in the property file, or just use default values. NOTE: if those
+             * are defined in the command line, then they overwrite whatever we had in the conf file
+             */
 
-		/*
-		 * We add them in first position, after the java command To avoid confusion, we only add them if they are enabled. NOTE: this might have side
-		 * effects "if" in the future we have something like a generic "-ea"
-		 */
-		if (definedEAforClient.equals(ENABLE_ASSERTIONS_EVO)) {
-			cmdLine.add(1, definedEAforClient);
-		}
-		if (definedEAforSUT.equals(ENABLE_ASSERTIONS_SUT)) {
-			cmdLine.add(1, definedEAforSUT);
-		}
+            if (definedEAforSUT == null) {
+                if (Properties.ENABLE_ASSERTS_FOR_SUT) {
+                    definedEAforSUT = ENABLE_ASSERTIONS_SUT;
+                } else {
+                    definedEAforSUT = DISABLE_ASSERTIONS_SUT;
+                }
+            }
 
-		LoggingUtils logUtils = new LoggingUtils();
+            if (definedEAforClient == null) {
+                if (Properties.ENABLE_ASSERTS_FOR_EVOSUITE) {
+                    definedEAforClient = ENABLE_ASSERTIONS_EVO;
+                } else {
+                    definedEAforClient = DISABLE_ASSERTIONS_EVO;
+                }
+            }
 
-		if (!Properties.CLIENT_ON_THREAD) {
-			/*
-			 * We want to completely mute the SUT. So, we block all outputs from client, and use a remote logging
-			 */
-			boolean logServerStarted = logUtils.startLogServer();
-			if (!logServerStarted) {
-				logger.error("Cannot start the log server");
-				return null;
-			}
-			int logPort = logUtils.getLogServerPort(); //
-			cmdLine.add(1, "-Dmaster_log_port=" + logPort);
-			cmdLine.add(1, "-Devosuite.log.appender=CLIENT");
-		}
+            /*
+             * We add them in first position, after the java command To avoid confusion, we only add them if they are enabled. NOTE: this might have side
+             * effects "if" in the future we have something like a generic "-ea"
+             */
+            if (definedEAforClient.equals(ENABLE_ASSERTIONS_EVO)) {
+                cmdLineClone.add(1, definedEAforClient);
+            }
+            if (definedEAforSUT.equals(ENABLE_ASSERTIONS_SUT)) {
+                cmdLineClone.add(1, definedEAforSUT);
+            }
 
-		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
+            if (!Properties.CLIENT_ON_THREAD) {
+                /*
+                 * We want to completely mute the SUT. So, we block all outputs from client, and use a remote logging
+                 */
+                logServer[i] = new LoggingUtils(); 
+                boolean logServerStarted = logServer[i].startLogServer();
+                if (!logServerStarted) {
+                    logger.error("Cannot start the log server");
+                    return null;
+                }
+                int logPort = logServer[i].getLogServerPort(); //
+                cmdLineClone.add(1, "-Dmaster_log_port=" + logPort);
+                cmdLineClone.add(1, "-Devosuite.log.appender=CLIENT");
+            }
+            
+            processArgs.add(cmdLineClone.toArray(new String[0]));
+        }
 
-		for (String entry : ClassPathHandler.getInstance().getTargetProjectClasspath().split(File.pathSeparator)) {
-			try {
-				ClassPathHacker.addFile(entry);
-			} catch (IOException e) {
-				LoggingUtils.getEvoLogger().info("* Error while adding classpath entry: "
-				                                         + entry);
-			}
-		}
-
-		handler.setBaseDir(EvoSuite.base_dir_path);
-		
-		if (handler.startProcess(newArgs)) {
+		if (handler.startProcessGroup(processArgs)) {
 
 			Set<ClientNodeRemote> clients = null;
 			try {
 				//FIXME: timeout here should be handled by TimeController
-				clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(60000);
+                clients = new CopyOnWriteArraySet<>(MasterServices.getInstance().getMasterNode()
+                        .getClientsOnceAllConnected(60000).values());
 			} catch (InterruptedException e) {
 			}
 			if (clients == null) {
-				logger.error("Not possible to access to clients. Clients' state: "+handler.getProcessState() + 
-						". Master registry port: "+MasterServices.getInstance().getRegistryPort());											
+				logger.error("Not possible to access to clients. Clients' state:\n" + handler.getProcessStates() + 
+						"Master registry port: " + MasterServices.getInstance().getRegistryPort());					
+				
 			} else {
 				/*
 				 * The clients have started, and connected back to Master.
@@ -492,7 +536,7 @@ public class TestGeneration {
 				handler.stopAndWaitForClientOnThread(10000);
 			}
 			
-			handler.killProcess();
+			handler.killAllProcesses();
 		} else {
 			LoggingUtils.getEvoLogger().info("* Could not connect to client process");
 		}
@@ -524,7 +568,10 @@ public class TestGeneration {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 			}
-			logUtils.closeLogServer();
+
+            for (LoggingUtils aLogServer : logServer) {
+                aLogServer.closeLogServer();
+            }
 		}
 		
 		logger.debug("Master process has finished to wait for client");
@@ -533,7 +580,7 @@ public class TestGeneration {
 		if(hasFailed){
 			logger.error("failed to write statistics data");
 			//note: cannot throw exception because would require refactoring of many SystemTests
-			return new ArrayList<List<TestGenerationResult>>();
+            return new ArrayList<>();
 		}
 		
 		return results;
@@ -567,7 +614,7 @@ public class TestGeneration {
 
 	private static List<List<TestGenerationResult>> generateTestsTarget(Properties.Strategy strategy, String target,
 	        List<String> args) {
-	    List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
+        List<List<TestGenerationResult>> results = new ArrayList<>();
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 		
 		Set<String> classes = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(target, false);

@@ -19,6 +19,7 @@
  */
 package org.evosuite.statistics;
 
+import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
@@ -52,7 +53,7 @@ import java.util.*;
 
 
 /**
- * This singleton collects all the data values reported by the client node
+ * A singleton of SearchStatistics collects all the data values reported by a single client node.
  * 
  * @author gordon
  *
@@ -62,12 +63,12 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	private static final long serialVersionUID = -1859683466333302151L;
 
 	/** Singleton instance */
-	private static SearchStatistics instance = null;
+	private static Map<String, SearchStatistics> instances = new LinkedHashMap<String, SearchStatistics>();
 
 	private static final Logger logger = LoggerFactory.getLogger(SearchStatistics.class);
 
 	/** Map of client id to best individual received from that client so far */
-	private Map<String, TestSuiteChromosome> bestIndividual = new HashMap<String, TestSuiteChromosome>();
+	private TestSuiteChromosome bestIndividual = null;
 
 	/** Backend used to output the data */
 	private StatisticsBackend backend = null;
@@ -117,7 +118,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		sequenceOutputVariableFactories.put(RuntimeVariable.FitnessTimeline.name(), new FitnessSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.SizeTimeline.name(), new SizeSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.LengthTimeline.name(), new LengthSequenceOutputVariableFactory());
-        sequenceOutputVariableFactories.put(RuntimeVariable.TotalExceptionsTimeline.name(), new TotalExceptionsSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.TotalExceptionsTimeline.name(), DirectSequenceOutputVariableFactory.getInteger(RuntimeVariable.TotalExceptionsTimeline));
         sequenceOutputVariableFactories.put(RuntimeVariable.IBranchGoalsTimeline.name(), new IBranchGoalsSequenceOutputVariableFactory());
 
 		sequenceOutputVariableFactories.put(RuntimeVariable.BranchCoverageTimeline.name(), new BranchCoverageSequenceOutputVariableFactory());
@@ -144,7 +145,14 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         sequenceOutputVariableFactories.put(RuntimeVariable.WeakMutationCoverageTimeline.name(), new WeakMutationCoverageSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationFitnessTimeline.name(), new OnlyMutationFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationCoverageTimeline.name(), new OnlyMutationCoverageSequenceOutputVariableFactory());
-		sequenceOutputVariableFactories.put(RuntimeVariable.DiversityTimeline.name(), new DiversitySequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.DiversityTimeline.name(), 
+            DirectSequenceOutputVariableFactory.getDouble(RuntimeVariable.DiversityTimeline));
+		
+		sequenceOutputVariableFactories.put(RuntimeVariable.DensityTimeline.name(), 
+		    DirectSequenceOutputVariableFactory.getDouble(RuntimeVariable.DensityTimeline));
+		
+		sequenceOutputVariableFactories.put(RuntimeVariable.FeaturesFound.name(), 
+            DirectSequenceOutputVariableFactory.getInteger(RuntimeVariable.FeaturesFound));
 
         // sequenceOutputVariableFactories.put("Generation_History", new GenerationSequenceOutputVariableFactory());
 		if(MasterServices.getInstance().getMasterNode() != null)
@@ -152,24 +160,33 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	}
 
 	public static SearchStatistics getInstance() {
-		if(instance == null)
-			instance = new SearchStatistics();
+		return getInstance(ClientProcess.DEFAULT_CLIENT_NAME);
+	}
 
+	public static SearchStatistics getInstance(String rmiClientIdentifier) {
+		SearchStatistics instance = instances.get(rmiClientIdentifier);
+		if (instance == null) {
+			instance = new SearchStatistics();
+			instances.put(rmiClientIdentifier, instance);
+		}
 		return instance;
 	}
 
 	public static void clearInstance() {
-		instance = null;
+		clearInstance(ClientProcess.DEFAULT_CLIENT_NAME);
+	}
+
+	public static void clearInstance(String rmiClientIdentifier) {
+		instances.remove(rmiClientIdentifier);
 	}
 
 	/**
 	 * This method is called when a new individual is sent from a client.
 	 * The individual represents the best individual of the current generation.
 	 * 
-	 * @param rmiClientIdentifier
-	 * @param individual
+	 * @param individual best individual of current generation
 	 */
-	public void currentIndividual(String rmiClientIdentifier, Chromosome individual) {
+	public void currentIndividual(Chromosome individual) {
 		if(backend == null)
 			return;
 
@@ -179,7 +196,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		}
 
 		logger.debug("Received individual");
-		bestIndividual.put(rmiClientIdentifier, (TestSuiteChromosome) individual);
+		bestIndividual = (TestSuiteChromosome) individual;
         for(ChromosomeOutputVariableFactory<?> v : variableFactories.values()) {
             setOutputVariable(v.getVariable((TestSuiteChromosome) individual));
         }
@@ -205,14 +222,8 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
          * value so that it can be used to produce the next timeline variable.
          */
         if (sequenceOutputVariableFactories.containsKey(variable.getName())) {
-			if(variable.getValue() instanceof Integer) {
-				DirectSequenceOutputVariableFactory<Integer> v = (DirectSequenceOutputVariableFactory<Integer>) sequenceOutputVariableFactories.get(variable.getName());
-				v.setValue((Integer) variable.getValue());
-			} else if(variable.getValue() instanceof Double) {
-				DirectSequenceOutputVariableFactory<Double> v = (DirectSequenceOutputVariableFactory<Double>) sequenceOutputVariableFactories.get(variable.getName());
-				v.setValue((Double) variable.getValue());
-			}
-//            v.setValue((Integer)variable.getValue());
+          DirectSequenceOutputVariableFactory<?> v = (DirectSequenceOutputVariableFactory<?>) sequenceOutputVariableFactories.get(variable.getName());
+          v.setValue(variable.getValue());
         } else
             outputVariables.put(variable.getName(), variable);
     }
@@ -333,12 +344,12 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 
 		outputVariables.put(RuntimeVariable.Total_Time.name(), new OutputVariable<Object>(RuntimeVariable.Total_Time.name(), System.currentTimeMillis() - startTime));
 
-		if(bestIndividual.isEmpty()) {
+		if(bestIndividual == null) {
 			logger.error("No statistics has been saved because EvoSuite failed to generate any test case");
 			return false;
 		}	
 
-		TestSuiteChromosome individual = bestIndividual.values().iterator().next();
+		TestSuiteChromosome individual = bestIndividual;
 
 		Map<String,OutputVariable<?>> map = getOutputVariables(individual);
 		if(map==null){
@@ -564,46 +575,6 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		@Override
 		public Integer getValue(TestSuiteChromosome individual) {
 			return individual.totalLengthOfTestCases();
-		}
-	}
-
-    /**
-     * Total number of exceptions
-     */
-    private static class TotalExceptionsSequenceOutputVariableFactory extends DirectSequenceOutputVariableFactory<Integer> {
-        public TotalExceptionsSequenceOutputVariableFactory() {
-            super(RuntimeVariable.TotalExceptionsTimeline);
-            this.value = 0;
-        }
-
-        @Override
-        public Integer getValue(TestSuiteChromosome individual) {
-            return (Integer) this.value;
-        }
-
-        @Override
-        public void setValue(Integer value) {
-            this.value = value;
-        }
-    }
-
-	/**
-	 * Total number of exceptions
-	 */
-	private static class DiversitySequenceOutputVariableFactory extends DirectSequenceOutputVariableFactory<Double> {
-		public DiversitySequenceOutputVariableFactory() {
-			super(RuntimeVariable.DiversityTimeline);
-			this.value = 0.0;
-		}
-
-		@Override
-		public Double getValue(TestSuiteChromosome individual) {
-			return (Double) this.value;
-		}
-
-		@Override
-		public void setValue(Double value) {
-			this.value = value;
 		}
 	}
 

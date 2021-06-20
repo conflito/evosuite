@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -20,9 +20,7 @@
 package org.evosuite.coverage.mutation;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -30,7 +28,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.evosuite.Properties;
-import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -49,6 +46,10 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 
 	private static final long serialVersionUID = -9124328839917834720L;
+
+	public StrongMutationSuiteFitness() {
+		super(Properties.Criterion.STRONGMUTATION);
+	}
 
 	/** {@inheritDoc} */
 	@Override
@@ -72,26 +73,9 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 	 * @return
 	 */
 	private List<TestChromosome> prioritizeTests(TestSuiteChromosome individual) {
-		List<TestChromosome> executionOrder = new ArrayList<TestChromosome>(
-		        individual.getTestChromosomes());
-
-		Collections.sort(executionOrder, new Comparator<TestChromosome>() {
-
-			@Override
-			public int compare(TestChromosome tc1, TestChromosome tc2) {
-				ExecutionResult result1 = tc1.getLastExecutionResult();
-				ExecutionResult result2 = tc2.getLastExecutionResult();
-				long diff = result1.getExecutionTime() - result2.getExecutionTime();
-				if (diff == 0)
-					return 0;
-				else if (diff < 0)
-					return -1;
-				else
-					return 1;
-			}
-
-		});
-
+		List<TestChromosome> executionOrder = new ArrayList<>(individual.getTestChromosomes());
+		executionOrder.sort(Comparator.comparingLong(tch ->
+				tch.getLastExecutionResult().getExecutionTime()));
 		return executionOrder;
 	}
 
@@ -114,7 +98,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 				logger.debug("Skipping test with timeout");
 				double fitness = branchFitness.totalGoals * 2
 				        + branchFitness.totalMethods + 3 * this.numMutants;
-				updateIndividual(this, individual, fitness);
+				updateIndividual(individual, fitness);
 				suite.setCoverage(this, 0.0);
 				logger.info("Test case has timed out, setting fitness to max value "
 				        + fitness);
@@ -124,7 +108,10 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 
 		// First objective: achieve branch coverage
 		logger.debug("Calculating branch fitness: ");
+		boolean archive = Properties.TEST_ARCHIVE;
+		Properties.TEST_ARCHIVE = false;
 		double fitness = branchFitness.getFitness(individual);
+		Properties.TEST_ARCHIVE = archive;
 
 		Set<Integer> touchedMutants = new LinkedHashSet<Integer>();
 		Map<Mutation, Double> minMutantFitness = new LinkedHashMap<Mutation, Double>();
@@ -161,10 +148,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 			  continue;
 			}
 
-			Iterator<Entry<Integer, MutationTestFitness>> it = this.mutantMap.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<Integer, MutationTestFitness> entry = it.next();
-
+			for (final Entry<Integer, MutationTestFitness> entry : this.mutantMap.entrySet()) {
 				int mutantID = entry.getKey();
 				if (newKilled.contains(mutantID)) {
 					continue;
@@ -213,8 +197,8 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 		}
 
 		logger.debug("Mutants killed: {}, Checked: {}, Goals: {})", numKilled, mutantsChecked, this.numMutants);
-		
-		updateIndividual(this, individual, fitness);
+
+		updateIndividual(individual, fitness);
 
 		assert numKilled ==newKilled.size() + removedMutants.size();
 		assert numKilled <= this.numMutants;

@@ -76,8 +76,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	 */
 	public ErrorConditionMethodAdapter(MethodVisitor mv, String className,
 	        String methodName, int access, String desc) {
-		//super(Opcodes.ASM5, mv, access, methodName, desc);
-		super(Opcodes.ASM5,
+		//super(Opcodes.ASM7, mv, access, methodName, desc);
+		super(Opcodes.ASM7,
 		        new AnnotatedMethodNode(access, methodName, desc, null, null), access,
 		        methodName, desc);
 		this.className = className;
@@ -90,8 +90,10 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		instrumentation = new ArrayList<>();
 		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.ARRAY))
 			instrumentation.add(new ArrayInstrumentation(this));
-		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.ARRAYLIST))
-			instrumentation.add(new ArrayListInstrumentation(this));
+		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.LIST))
+			instrumentation.add(new ListInstrumentation(this));
+		/*if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.ARRAYLIST))
+			instrumentation.add(new ArrayListInstrumentation(this));*/
 		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.CAST))
 			instrumentation.add(new CastErrorInstrumentation(this));
 		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.DEQUE))
@@ -101,8 +103,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.LINKEDHASHSET))
 			instrumentation.add(new LinkedHashSetInstrumentation(this));
 		// instrumentation.add(new ListInstrumentation(this));
-		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.LINKEDLIST))
-			instrumentation.add(new LinkedListInstrumentation(this));
+		/*if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.LINKEDLIST))
+			instrumentation.add(new LinkedListInstrumentation(this));*/
 		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.NPE))
 			instrumentation.add(new NullPointerExceptionInstrumentation(this));
 		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.OVERFLOW))

@@ -53,7 +53,7 @@ public class MethodCallTestFitness extends TestFitnessFunction {
 						" | Object distance: " + mtc.getObjectDistance());
 		}
 		
-		updateIndividual(this, individual, fitness);
+		updateIndividual(individual, fitness);
 		
 		return fitness;
 	}

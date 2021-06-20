@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,6 +19,7 @@
  */
 package org.evosuite.ga.comparators;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import org.evosuite.ga.Chromosome;
@@ -29,9 +30,10 @@ import org.evosuite.ga.FitnessFunction;
  * 
  * @author José Campos
  */
-public class SortByFitness
-    implements Comparator<Chromosome>
-{
+public class SortByFitness implements Comparator<Chromosome>, Serializable {
+
+    private static final long serialVersionUID = 4982933698286500461L;
+
     private FitnessFunction<?> ff;
 
     private boolean order;
@@ -57,21 +59,8 @@ public class SortByFitness
         double objetive1 = c1.getFitness(this.ff);
         double objetive2 = c2.getFitness(this.ff);
 
-        if (this.order) {
-            if (objetive1 < objetive2)
-                return 1;
-            else if (objetive1 > objetive2)
-                return -1;
-            else
-                return 0;
-        }
-        else {
-            if (objetive1 < objetive2)
-                return -1;
-            else if (objetive1 > objetive2)
-                return 1;
-            else
-                return 0;
-        }
+        return this.order
+                ? Double.compare(objetive2, objetive1)
+                : Double.compare(objetive1, objetive2);
     }
 }

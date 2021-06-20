@@ -297,6 +297,14 @@ public class Properties {
 	@DoubleValue(min = 1)
 	public static int FUNCTIONAL_MOCKING_INPUT_LIMIT = 5;
 
+	@Parameter(key = "num_parallel_clients", group = "Test Creation", description = "Number of EvoSuite clients to run in parallel")
+	public static int NUM_PARALLEL_CLIENTS = 1;
+
+	@Parameter(key = "migrants_iteration_frequency", group = "Test Creation", description = "Determines amount of iterations between sending migrants to other client (-1 to disable any iterations between clients)")
+	public static int MIGRANTS_ITERATION_FREQUENCY = 2;
+
+	@Parameter(key = "migrants_communication_rate", group = "Test Creation", description = "Determines amount of migrants per communication step")
+	public static int MIGRANTS_COMMUNICATION_RATE = 3;
 
 	// ---------------------------------------------------------------
 	// Search algorithm
@@ -304,11 +312,11 @@ public class Properties {
 		// random
 		RANDOM_SEARCH,
 		// GAs
-		STANDARD_GA, MONOTONIC_GA, STEADY_STATE_GA, BREEDER_GA, CELLULAR_GA, STANDARD_CHEMICAL_REACTION,
+		STANDARD_GA, MONOTONIC_GA, STEADY_STATE_GA, BREEDER_GA, CELLULAR_GA, STANDARD_CHEMICAL_REACTION, MAP_ELITES,
 		// mu-lambda
 		ONE_PLUS_LAMBDA_LAMBDA_GA, ONE_PLUS_ONE_EA, MU_PLUS_LAMBDA_EA, MU_LAMBDA_EA,
 		// many-objective algorithms
-		MOSA, LIPS, MIO,
+		MOSA, DYNAMOSA, LIPS, MIO,
 		// multiple-objective optimisation algorithms
 		NSGAII, SPEA2
 	}
@@ -323,6 +331,25 @@ public class Properties {
 	@Parameter(key = "ranking_type", group = "Runtime", description = "type of ranking to use in MOSA")
 	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
 
+	public enum MapElitesChoice {
+	  ALL,
+	  SINGLE,
+	  SINGLE_AVG
+	}
+	
+	@Parameter(key = "map_elites_choice", group = "Search Algorithm", description = "Selection of chromosome branches to mutate")
+    public static MapElitesChoice MAP_ELITES_CHOICE = MapElitesChoice.SINGLE_AVG;
+	
+	@Parameter(key = "map_elites_mosa_mutations", group = "Search Algorithm", description = "Enable mosa style mutations for map elites")
+	public static boolean MAP_ELITES_MOSA_MUTATIONS = true;
+	
+	@Parameter(key = "map_elites_random", group = "Search Algorithm", description = "Probability used for adding new chromosomes")
+    @DoubleValue(min = 0.0, max = 1.0)
+    public static double MAP_ELITES_RANDOM = 0.5;
+	
+	@Parameter(key = "map_elites_ignore_features", group = "Search Algorithm", description = "Enable this to disable feature based mapping")
+    public static boolean MAP_ELITES_IGNORE_FEATURES = false;
+	
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
 	public static Algorithm ALGORITHM = Algorithm.MONOTONIC_GA;
 
@@ -400,7 +427,7 @@ public class Properties {
 	public static boolean DSE_KEEP_ALL_TESTS = false;
 
 	public enum SolverType {
-		EVOSUITE_SOLVER, Z3_SOLVER, Z3_STR2_SOLVER, CVC4_SOLVER;
+		EVOSUITE_SOLVER, Z3_SOLVER, CVC4_SOLVER;
 	}
 
 	@Parameter(key = "dse_solver", group = "DSE", description = "Specify which constraint solver to use. Note: external solver will need to be installed and cofigured separately")
@@ -408,9 +435,6 @@ public class Properties {
 
 	@Parameter(key = "z3_path", group = "DSE", description = "Indicates the path to the Z3 solver")
 	public static String Z3_PATH = null;
-
-	@Parameter(key = "z3_str2_path", group = "DSE", description = "Indicates the path to the Z3-Str2 solver")
-	public static String Z3_STR2_PATH = null;
 
 	@Parameter(key = "cvc4_path", group = "DSE", description = "Indicates the path to the CVC4 solver")
 	public static String CVC4_PATH = null;
@@ -623,11 +647,14 @@ public class Properties {
 	public static TheReplacementFunction REPLACEMENT_FUNCTION = TheReplacementFunction.DEFAULT;
 
 	public enum SelectionFunction {
-		RANK, ROULETTEWHEEL, TOURNAMENT, BINARY_TOURNAMENT
+		RANK, ROULETTEWHEEL, TOURNAMENT, BINARY_TOURNAMENT, RANK_CROWD_DISTANCE_TOURNAMENT, BESTK, RANDOMK
 	}
 
 	@Parameter(key = "selection_function", group = "Search Algorithm", description = "Selection function during search")
 	public static SelectionFunction SELECTION_FUNCTION = SelectionFunction.RANK;
+
+	@Parameter(key = "emigrant_selection_function", group = "Search Algorithm", description = "Selection function for emigrant selection during search")
+	public static SelectionFunction EMIGRANT_SELECTION_FUNCTION = SelectionFunction.RANDOMK;
 
 	public enum MutationProbabilityDistribution {
 		UNIFORM, BINOMIAL
@@ -891,8 +918,12 @@ public class Properties {
 	@Parameter(key = "junit_tests", group = "Output", description = "Create JUnit test suites")
 	public static boolean JUNIT_TESTS = true;
 
+	public enum JUnitCheckValues{
+		TRUE, OPTIONAL, FALSE
+	}
+
 	@Parameter(key = "junit_check", group = "Output", description = "Compile and run resulting JUnit test suite (if any was created)")
-	public static boolean JUNIT_CHECK = true;
+	public static JUnitCheckValues JUNIT_CHECK = JUnitCheckValues.TRUE;
 
 	@Parameter(key = "junit_check_on_separate_process", group = "Output", description = "Compile and run resulting JUnit test suite on a separate process")
 	@Deprecated
@@ -1080,6 +1111,7 @@ public class Properties {
 
 	@Parameter(key = "serialize_ga", group = "Output", description = "Include the GA instance in the test generation result")
 	public static boolean SERIALIZE_GA = false;
+
 
 	public enum StatisticsBackend {
 		NONE, CONSOLE, CSV, HTML, DEBUG;
@@ -1295,11 +1327,11 @@ public class Properties {
 	public static boolean ERROR_BRANCHES = false;
 
 	public enum ErrorInstrumentation {
-		ARRAY, ARRAYLIST, CAST, DEQUE, DIVISIONBYZERO, LINKEDHASHSET, LINKEDLIST, NPE, OVERFLOW, QUEUE, STACK, VECTOR
+		ARRAY, CAST, DEQUE, DIVISIONBYZERO, LINKEDHASHSET, NPE, OVERFLOW, QUEUE, STACK, VECTOR, LIST
 	}
 
 	@Parameter(key = "error_instrumentation", description = "Which instrumentation to use for error checks")
-	public static ErrorInstrumentation[] ERROR_INSTRUMENTATION = new ErrorInstrumentation[] {ErrorInstrumentation.ARRAY, ErrorInstrumentation.ARRAYLIST, ErrorInstrumentation.CAST, ErrorInstrumentation.DEQUE, ErrorInstrumentation.DIVISIONBYZERO, ErrorInstrumentation.LINKEDHASHSET, ErrorInstrumentation.LINKEDLIST, ErrorInstrumentation.NPE, ErrorInstrumentation.OVERFLOW, ErrorInstrumentation.QUEUE, ErrorInstrumentation.STACK, ErrorInstrumentation.VECTOR};
+	public static ErrorInstrumentation[] ERROR_INSTRUMENTATION = new ErrorInstrumentation[] {ErrorInstrumentation.ARRAY, ErrorInstrumentation.CAST, ErrorInstrumentation.DEQUE, ErrorInstrumentation.DIVISIONBYZERO, ErrorInstrumentation.LINKEDHASHSET, ErrorInstrumentation.NPE, ErrorInstrumentation.OVERFLOW, ErrorInstrumentation.QUEUE, ErrorInstrumentation.STACK, ErrorInstrumentation.VECTOR};
 
 	@Parameter(key = "enable_asserts_for_evosuite", description = "When running EvoSuite clients, for debugging purposes check its assserts")
 	public static boolean ENABLE_ASSERTS_FOR_EVOSUITE = false;
@@ -1545,7 +1577,7 @@ public class Properties {
 	
 	
 	public enum Strategy {
-	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, MOSUITE, DSE, NOVELTY
+	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, MOSUITE, DSE, NOVELTY, MAP_ELITES
 	}
 
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")
@@ -2509,7 +2541,8 @@ public class Properties {
 			}
 		}
 	}
-	
+
+	public static final String JAVA_VERSION_WARN_MSG = "EvoSuite does not support Java versions > 8 yet";
 	
 	/*
 	 * whether or not the regression mode is running

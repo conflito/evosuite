@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -81,7 +81,14 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		if (prefix.isEmpty()) {
 			prefix = Properties.TARGET_CLASS;
 		}
-		totalBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCountForPrefix(prefix);
+
+		if (Properties.TARGET_METHOD.isEmpty()) {
+		  totalBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).
+		    getBranchCountForPrefix(prefix);
+		} else {
+		  totalBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).
+	            getBranchCountForMethod(prefix, Properties.TARGET_METHOD);
+		}
 		branchesId = new LinkedHashSet<>();
 
 		totalGoals = 2 * totalBranches;
@@ -313,7 +320,7 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			//suite.setCoverage(0.0);
 		}
 
-		updateIndividual(this, suite, fitness);
+		updateIndividual(suite, fitness);
 
 		assert (coverage <= totalGoals) : "Covered " + coverage + " vs total goals "
 		        + totalGoals;

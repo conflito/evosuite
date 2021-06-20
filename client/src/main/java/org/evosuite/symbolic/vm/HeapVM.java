@@ -543,7 +543,7 @@ public final class HeapVM extends AbstractVM {
 			return;
 
 		// create array class
-		Type componentType = Type.getType(componentTypeName.replace('/', '.'));
+		Type componentType = Type.getObjectType(componentTypeName.replace('/', '.'));
 		Class<? >componentClass = classLoader.getClassForType(componentType);
 		int[] lenghts = new int[] { 0 };
 		Class<?> array_class = Array.newInstance(componentClass, lenghts)
@@ -828,7 +828,7 @@ public final class HeapVM extends AbstractVM {
 					.containsSymbolicVariable()
 					|| indexTooBigConstraint.getRightOperand()
 							.containsSymbolicVariable())
-				this.pc.addSupportingConstraint(indexTooBigConstraint);
+				this.pc.appendSupportingConstraint(indexTooBigConstraint);
 			return true;
 		} else {
 			indexTooBigConstraint = ConstraintFactory.lt(symb_index,
@@ -837,7 +837,7 @@ public final class HeapVM extends AbstractVM {
 					.containsSymbolicVariable()
 					|| indexTooBigConstraint.getRightOperand()
 							.containsSymbolicVariable())
-				this.pc.addSupportingConstraint(indexTooBigConstraint);
+				this.pc.appendSupportingConstraint(indexTooBigConstraint);
 			return false;
 		}
 	}
@@ -860,7 +860,7 @@ public final class HeapVM extends AbstractVM {
 					.containsSymbolicVariable()
 					|| negative_index_constraint.getRightOperand()
 							.containsSymbolicVariable())
-				pc.addSupportingConstraint(negative_index_constraint);
+				pc.appendSupportingConstraint(negative_index_constraint);
 			return true;
 		} else {
 			negative_index_constraint = ConstraintFactory.gte(symb_index,
@@ -869,7 +869,7 @@ public final class HeapVM extends AbstractVM {
 					.containsSymbolicVariable()
 					|| negative_index_constraint.getRightOperand()
 							.containsSymbolicVariable())
-				pc.addSupportingConstraint(negative_index_constraint);
+				pc.appendSupportingConstraint(negative_index_constraint);
 			return false;
 		}
 	}
@@ -884,7 +884,7 @@ public final class HeapVM extends AbstractVM {
 					.containsSymbolicVariable()
 					|| negative_array_length_constraint.getRightOperand()
 							.containsSymbolicVariable())
-				pc.addSupportingConstraint(negative_array_length_constraint);
+				pc.appendSupportingConstraint(negative_array_length_constraint);
 			return true;
 		} else {
 			negative_array_length_constraint = ConstraintFactory.gte(
@@ -893,7 +893,7 @@ public final class HeapVM extends AbstractVM {
 					.containsSymbolicVariable()
 					|| negative_array_length_constraint.getRightOperand()
 							.containsSymbolicVariable())
-				pc.addSupportingConstraint(negative_array_length_constraint);
+				pc.appendSupportingConstraint(negative_array_length_constraint);
 			return false;
 		}
 	}
@@ -1345,7 +1345,7 @@ public final class HeapVM extends AbstractVM {
 
 		/* check reference initialization */
 		env.heap.initializeReference(conc_ref, symb_ref);
-		Type type = Type.getType(typeName);
+		Type type = Type.getObjectType(typeName);
 
 		Class<?> myClazz = classLoader.getClassForType(type);
 		boolean instanceOf = myClazz.isInstance(conc_ref);

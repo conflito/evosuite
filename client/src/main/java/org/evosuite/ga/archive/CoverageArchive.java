@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -24,7 +24,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.testcase.TestChromosome;
@@ -51,22 +50,22 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * Map used to store all covered targets (keys of the map) and the corresponding covering
    * solutions (values of the map)
    */
-  private final Map<F, T> covered = new LinkedHashMap<F, T>();
+  private final Map<F, T> covered = new LinkedHashMap<>();
 
   /**
    * Set used to store all targets that have not been covered yet
    */
-  private final Set<F> uncovered = new LinkedHashSet<F>();
+  private final Set<F> uncovered = new LinkedHashSet<>();
 
   public static final CoverageArchive<TestFitnessFunction, TestChromosome> instance =
-      new CoverageArchive<TestFitnessFunction, TestChromosome>();
+          new CoverageArchive<>();
 
   /**
    * {@inheritDoc}
    */
   @Override
   public void addTarget(F target) {
-    assert target != null;
+    super.addTarget(target);
 
     if (!this.uncovered.contains(target)) {
       logger.debug("Registering new target '" + target + "'");
@@ -81,7 +80,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    */
   @Override
   public void updateArchive(F target, T solution, double fitnessValue) {
-    assert target != null;
+    super.updateArchive(target, solution, fitnessValue);
     assert this.covered.containsKey(target) || this.uncovered.contains(target) : "Unknown goal: "+target;
 
     if (fitnessValue > 0.0) {
@@ -151,6 +150,15 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * {@inheritDoc}
    */
   @Override
+  public int getNumberOfCoveredTargets(Class<?> targetClass) {
+    return (int) this.covered.keySet().stream().filter(target -> target.getClass() == targetClass)
+        .count();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Set<F> getCoveredTargets() {
     return this.covered.keySet();
   }
@@ -167,12 +175,20 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * {@inheritDoc}
    */
   @Override
+  public int getNumberOfUncoveredTargets(Class<?> targetClass) {
+    return (int) this.uncovered.stream().filter(target -> target.getClass() == targetClass).count();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Set<F> getUncoveredTargets() {
     return this.uncovered;
   }
 
   private Set<F> getTargets() {
-    Set<F> targets = new LinkedHashSet<F>();
+    Set<F> targets = new LinkedHashSet<>();
     targets.addAll(this.getCoveredTargets());
     targets.addAll(this.getUncoveredTargets());
     return targets;
@@ -200,7 +216,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    */
   @Override
   public Set<T> getSolutions() {
-    return new LinkedHashSet<T>(this.covered.values());
+    return new LinkedHashSet<>(this.covered.values());
   }
 
   /**
@@ -251,12 +267,12 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
-  public TestSuiteChromosome mergeArchiveAndSolution(Chromosome solution) {
+  protected TestSuiteChromosome createMergedSolution(TestSuiteChromosome solution) {
     // Deactivate in case a test is executed and would access the archive as this might cause a
     // concurrent access
     Properties.TEST_ARCHIVE = false;
 
-    TestSuiteChromosome mergedSolution = (TestSuiteChromosome) solution.clone();
+    TestSuiteChromosome mergedSolution = solution.clone();
 
     // skip solutions that have been modified as those might not have been evaluated yet, or have
     // timeout or throw some exception and therefore they may slow down future analysis on the final
@@ -267,7 +283,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
                 || t.getLastExecutionResult().hasTestException())));
 
     // to avoid adding the same solution to 'mergedSolution' suite
-    Set<T> solutionsSampledFromArchive = new LinkedHashSet<T>();
+    Set<T> solutionsSampledFromArchive = new LinkedHashSet<>();
 
     for (F target : this.getTargets()) {
       // has target been covered? to answer it, we perform a local check rather than calling method

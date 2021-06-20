@@ -11,11 +11,11 @@ There are different ways to use EvoSuite:
 
 ### EvoSuite on the command line
 
-EvoSuite comes as an executable jar file which you can be called as follows:
+EvoSuite comes as an executable jar file which you can call as follows:
 
 ```java -jar evosuite.jar <options>```
 
-To generate a test suite using use the following command:
+To generate a test suite using EvoSuite, use the following command:
 
 ```java -jar evosuite.jar <target> [options]```
 
@@ -24,7 +24,7 @@ The target can be a class:
 ```-class <ClassName>```
 
 or a package prefix, in which case EvoSuite tries to generate a test
-suite for each class in the classpath that match the prefix:
+suite for each class in the classpath that matches the prefix:
 
 ```-prefix <PrefixName>```
 
@@ -42,6 +42,31 @@ For more options, see the
 [Documentation](http://www.evosuite.org/documentation/commandline/)
 
 ```java -jar evosuite.jar -help```
+
+### EvoSuite on Docker Hub
+
+EvoSuite has a container image available on [Docker Hub](https://hub.docker.com/r/evosuite/evosuite). You can get the container by either pulling the image:
+
+```docker pull evosuite/evosuite:<version>```
+
+or by manually building the image locally:
+
+```
+git clone https://github.com/EvoSuite/evosuite.git
+cd evosuite
+docker build -f Dockerfile.java8 . --tag evosuite/evosuite:latest-java-8
+docker build -f Dockerfile.java11 . --tag evosuite/evosuite:latest-java-11
+```
+
+EvoSuite can be called as follows:
+
+```docker run -it -u ${UID} -v ${PWD}:/evosuite evosuite/evosuite:<version> <options>```
+
+It assumes that the project to be tested is located in the current directory the command is called from. The current directory, ```${PWD}```, is mapped to the ```/evosuite``` directory inside the container. This location is also the working directory of EvoSuite. All results will be mapped back to the directory on the host system. The ```-u ${UID}``` makes sure that the results have the same file ownership as the user initiating the command.
+
+When EvoSuite needs to be run in the background, you can use ```-d``` instead of ```-it```.
+
+The ```<options>``` are the same as they would be when EvoSuite is called from the command line.
 
 ### EvoSuite plugin for Eclipse
 

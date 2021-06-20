@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -35,8 +35,7 @@ import org.evosuite.utils.Listenable;
 
 
 /**
- *
- * A test case is a list of statements
+ * A test case is a sequence of {@link Statement statements}.
  *
  * @author Gordon Fraser
  * @author Sebastian Steenbuck
@@ -44,10 +43,9 @@ import org.evosuite.utils.Listenable;
 public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Void> {
 
 	/**
-	 * Get an unique id representing this test.
-	 * This is mainly useful for debugging.
+	 * Get a unique ID representing this test. This is mainly useful for debugging.
 	 *
-	 * @return
+	 * @return the unique ID of this test
 	 */
 	public int getID();
 
@@ -72,6 +70,13 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	 * @param goal a {@link org.evosuite.testcase.TestFitnessFunction} object.
 	 */
 	public void addCoveredGoal(TestFitnessFunction goal);
+
+	/**
+	 * Remove goal that may have been covered
+	 * 
+	 * @param goal a {@link org.evosuite.testcase.TestFitnessFunction} object.
+	 */
+	public void removeCoveredGoal(TestFitnessFunction goal);
 
 	/**
 	 * Keep track of an additional test failure
@@ -221,7 +226,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	public Object getObject(VariableReference reference, Scope scope);
 
 	/**
-	 * Get all objects up to position satisfying constraint
+	 * Get all objects up to the given position.
 	 *
 	 * @param position a int.
 	 * @return a {@link java.util.List} object.

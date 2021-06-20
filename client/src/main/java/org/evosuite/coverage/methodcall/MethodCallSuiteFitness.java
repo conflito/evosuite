@@ -44,7 +44,7 @@ public class MethodCallSuiteFitness extends TestSuiteFitnessFunction{
 		}
 		fitness = allMethodCalls.size() - maxCovered;
 				
-		updateIndividual(this, suite, fitness);
+		updateIndividual(suite, fitness);
 		
 		suite.setNumOfCoveredGoals(this, maxCovered);
 		if(!allMethodCalls.isEmpty())
